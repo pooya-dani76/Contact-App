@@ -20,10 +20,13 @@ class CustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => onTap(),
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(8), shape: BoxShape.rectangle),
+          color: color,
+          borderRadius: BorderRadius.circular(12),
+          shape: BoxShape.rectangle,
+        ),
         constraints: BoxConstraints(
           maxHeight: maxSize != null ? maxSize!.height : double.infinity,
           maxWidth: maxSize != null ? maxSize!.width : double.infinity,

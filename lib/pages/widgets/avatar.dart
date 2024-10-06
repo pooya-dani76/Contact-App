@@ -16,7 +16,7 @@ class Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius ?? 8),
+        borderRadius: BorderRadius.circular(borderRadius ?? 12),
         shape: BoxShape.rectangle,
         image: DecorationImage(
           fit: BoxFit.fill,

@@ -80,7 +80,7 @@ class Storage {
     await database.close();
   }
 
-static Future<int> addNewContact({required Contact contact}) async {
+  static Future<int> addNewContact({required Contact contact}) async {
     // for (var element in contact.getNumberInfo()['numbers']) {
     //   bool isExist = await numberIsExist(number: element);
     //   if (isExist) {
@@ -97,15 +97,22 @@ static Future<int> addNewContact({required Contact contact}) async {
       return -1;
     }
   }
+
 // ---------------------------------Read------------------------------------------
-  static Future<List> getContacts({String? name}) async {
+  static Future<List> getContacts() async {
     Database database = await openDB();
     List data = await database.query(
       'Contacts',
-      where: name != null ? 'name = ?' : null,
-      whereArgs: name != null ? [name] : null,
       orderBy: 'name',
     );
+    await database.close();
+    return data;
+  }
+
+  static Future searchContact({required String searchText}) async {
+    Database database = await openDB();
+    List data =
+        await database.rawQuery('''SELECT * FROM Contacts WHERE name LIKE "%$searchText%"''');
     await database.close();
     return data;
   }

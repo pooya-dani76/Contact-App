@@ -18,7 +18,15 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Column(
         children: [
-          const CustomAppBar(title: 'مخاطبین', showAddButton: true),
+          GetBuilder<HomePageController>(
+              builder: (homePageController) => CustomAppBar(
+                    title: 'مخاطبین',
+                    searchMode: homePageController.searchMode,
+                    onCloseSearchButtonTap: onCloseSearchButtonTap,
+                    onSearchWordChange: ()=> homePageController.search(),
+                    searchController: homePageController.searchController,
+                    onSearchButtonTap: () => homePageController.setSearchMode(true),
+                  )),
           const SizedBox(height: 30),
           Expanded(
             child: GetBuilder<HomePageController>(builder: (homePageController) {

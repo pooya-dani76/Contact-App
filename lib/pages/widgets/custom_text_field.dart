@@ -70,15 +70,36 @@ class _CustomTextFieldState extends State<CustomTextField> {
           const SizedBox(height: 10),
         },
         TextField(
-            focusNode: focus,
-            maxLines: widget.maxLines,
-            maxLength: widget.maxLength,
-            keyboardType: widget.onlyNumeric! ? TextInputType.number : null,
-            inputFormatters: widget.onlyNumeric! ? [FilteringTextInputFormatter.digitsOnly] : null,
-            // cursorColor: widget.cursorColor ?? appController.appColor,
-            controller: widget.controller,
-            style: const TextStyle(fontFamily: "Vazir"),
-            onChanged: widget.onChanged),
+          focusNode: focus,
+          maxLines: widget.maxLines,
+          maxLength: widget.maxLength,
+          keyboardType: widget.onlyNumeric! ? TextInputType.number : null,
+          inputFormatters: widget.onlyNumeric! ? [FilteringTextInputFormatter.digitsOnly] : null,
+          // cursorColor: widget.cursorColor ?? appController.appColor,
+          controller: widget.controller,
+          style: const TextStyle(fontFamily: "Vazir"),
+          onChanged: widget.onChanged,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.all(10),
+            isCollapsed: true,
+            border: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.white),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.white),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.white),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.white),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
       ],
     );
   }
