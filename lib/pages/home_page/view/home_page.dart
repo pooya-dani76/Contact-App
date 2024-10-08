@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:special_phone_book/pages/home_page/controller/home_page_controller.dart';
 import 'package:special_phone_book/pages/widgets/app_bar.dart';
+import 'package:special_phone_book/pages/widgets/avatar.dart';
 import 'package:special_phone_book/pages/widgets/contact_card.dart';
+import 'package:special_phone_book/pages/widgets/custom_button.dart';
 import 'package:special_phone_book/pages/widgets/custom_text.dart';
+import 'package:special_phone_book/pages/widgets/custom_text_field.dart';
+import 'package:special_phone_book/routes/routes.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,14 +23,58 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           GetBuilder<HomePageController>(
-              builder: (homePageController) => CustomAppBar(
+            builder: (homePageController) => homePageController.searchMode
+                ? Container(
+                    padding: const EdgeInsets.only(top: 25, left: 10, right: 10),
+                    height: 80,
+                    child: Row(
+                      children: [
+                        CustomButton(
+                          onTap: () => onCloseSearchButtonTap(),
+                          color: Colors.red,
+                          maxSize: const Size(35, 35),
+                          child: const Icon(Icons.close_rounded),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: CustomTextField(
+                            controller: homePageController.searchController,
+                            maxLines: 1,
+                            onChanged: (value) => Future.delayed(
+                              const Duration(milliseconds: 500),
+                              () => homePageController.search(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : CustomAppBar(
                     title: 'مخاطبین',
-                    searchMode: homePageController.searchMode,
-                    onCloseSearchButtonTap: onCloseSearchButtonTap,
-                    onSearchWordChange: ()=> homePageController.search(),
-                    searchController: homePageController.searchController,
-                    onSearchButtonTap: () => homePageController.setSearchMode(true),
-                  )),
+                    leading: [
+                      CustomButton(
+                        onTap: () => routeToPage(page: Routes.editPage),
+                        color: Colors.blue,
+                        maxSize: const Size(35, 35),
+                        child: const Icon(Icons.add),
+                      ),
+                      const SizedBox(width: 10),
+                      CustomButton(
+                        onTap: () => homePageController.setSearchMode(true),
+                        color: Colors.greenAccent[400],
+                        maxSize: const Size(35, 35),
+                        child: const Icon(Icons.search_rounded),
+                      ),
+                    ],
+                    trailing: const [
+                      Spacer(),
+                      Avatar(
+                        image: '',
+                        maxSize: Size(35, 35),
+                      ),
+                    ],
+                  ),
+          ),
           const SizedBox(height: 30),
           Expanded(
             child: GetBuilder<HomePageController>(builder: (homePageController) {
