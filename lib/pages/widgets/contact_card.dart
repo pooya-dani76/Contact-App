@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:special_phone_book/pages/widgets/avatar.dart';
 import 'package:special_phone_book/pages/widgets/custom_text.dart';
+import 'package:special_phone_book/routes/routes.dart';
 
 class ContactCard extends StatelessWidget {
   const ContactCard({
@@ -18,7 +19,10 @@ class ContactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      onTap: () {},
+      onTap: () => routeToPage(
+        page: Routes.detailPage,
+        arguments: {'name': name, 'id': contactId, 'pic_path': avatar},
+      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(

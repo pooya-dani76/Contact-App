@@ -109,6 +109,28 @@ class Storage {
     return data;
   }
 
+  static Future<Map> getContactBaseInfo({required int contactId}) async {
+    Database database = await openDB();
+    List data = await database.query(
+      'Contacts',
+      where: 'id = ?',
+      whereArgs: [contactId]
+    );
+    await database.close();
+    return data[0];
+  }
+
+  static Future getContactNumberInfo({required int contactId}) async {
+    Database database = await openDB();
+    List data = await database.query(
+      'Numbers',
+      where: 'contact = ?',
+      whereArgs: [contactId]
+    );
+    await database.close();
+    return data;
+  }
+
   static Future searchContact({required String searchText}) async {
     Database database = await openDB();
     List data =

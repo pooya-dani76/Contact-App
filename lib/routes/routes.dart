@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:special_phone_book/pages/detail_page/controller/detail_page_controller.dart';
 import 'package:special_phone_book/pages/detail_page/view/detail_page_view.dart';
 import 'package:special_phone_book/pages/home_page/controller/home_page_controller.dart';
 import 'package:special_phone_book/pages/home_page/view/home_page.dart';
@@ -18,8 +17,7 @@ class Pages {
     ),
     GetPage(
       name: Routes.detailPage,
-      page: () => const DetailPage(),
-      binding: DetailPageBinding()
+      page: () => DetailPage(),
     ),
   ];
 }
@@ -31,12 +29,12 @@ class HomePageBinding extends Bindings {
   }
 }
 
-class DetailPageBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.put(DetailPageController());
-  }
-}
+// class DetailPageBinding extends Bindings {
+//   @override
+//   void dependencies() {
+//     Get.put(DetailPageController());
+//   }
+// }
 
 void routeToPage({required String page, Map? arguments}) async {
   await Get.toNamed(page, arguments: arguments);

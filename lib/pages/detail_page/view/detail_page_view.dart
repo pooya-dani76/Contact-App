@@ -7,17 +7,21 @@ import 'package:special_phone_book/pages/widgets/avatar.dart';
 import 'package:special_phone_book/pages/widgets/custom_button.dart';
 import 'package:special_phone_book/pages/widgets/custom_text.dart';
 
+// ignore: must_be_immutable
 class DetailPage extends StatelessWidget {
-  const DetailPage({super.key});
+  DetailPage({super.key});
+
+  DetailPageController detailPageController =
+      Get.put(DetailPageController(contactBaseInfo: Get.arguments));
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<DetailPageController>(builder: (detailPageController) {
+    return GetBuilder<DetailPageController>(builder: (controller) {
       return Scaffold(
         body: Column(
           children: [
             const CustomAppBar(
-              title: 'مخاطب',
+              title: '',
               searchMode: false,
               homePageMode: false,
             ),
@@ -27,16 +31,16 @@ class DetailPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  const Center(
+                  Center(
                     child: Avatar(
-                      image: 'assets/images/unknown_person.png',
-                      maxSize: Size(120, 120),
+                      image: controller.contactBaseInfo['pic_path'],
+                      maxSize: const Size(120, 120),
                     ),
                   ),
                   const SizedBox(height: 15),
-                  const Center(
+                  Center(
                       child: CustomText(
-                    text: 'پت کبیر ابر کون کن دو عالم هستی و نیستی',
+                    text: controller.contactBaseInfo['name'],
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   )),
