@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class Avatar extends StatelessWidget {
@@ -20,7 +22,9 @@ class Avatar extends StatelessWidget {
         shape: BoxShape.rectangle,
         image: DecorationImage(
           fit: BoxFit.fill,
-          image: AssetImage(image.isNotEmpty ? image : 'assets/images/unknown_person.png'),
+          image: image.isNotEmpty
+              ? FileImage(File(image))
+              : const AssetImage('assets/images/unknown_person.png'),
         ),
       ),
       constraints: BoxConstraints(

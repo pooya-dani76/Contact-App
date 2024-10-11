@@ -25,21 +25,25 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Contacts',
-          getPages: Pages.pages,
-          initialRoute: Routes.homePage,
-          theme: ThemeData.dark(),
-          builder: (context, child) {
-            final mediaQueryData = MediaQuery.of(context);
-            return Directionality(
-              textDirection: TextDirection.rtl,
-              child: MediaQuery(
-                data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1)),
-                child: child!,
-              ),
-            );
-          },
+      debugShowCheckedModeBanner: false,
+      title: 'Contacts',
+      getPages: Pages.pages,
+      initialRoute: Routes.homePage,
+      theme: ThemeData.dark(useMaterial3: true).copyWith(
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        splashFactory: NoSplash.splashFactory,
+      ),
+      builder: (context, child) {
+        final mediaQueryData = MediaQuery.of(context);
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: MediaQuery(
+            data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1)),
+            child: child!,
+          ),
         );
+      },
+    );
   }
 }

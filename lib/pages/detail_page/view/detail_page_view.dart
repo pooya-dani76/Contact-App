@@ -92,13 +92,13 @@ class DetailPage extends StatelessWidget {
                     fontSize: 16,
                   ),
                   const SizedBox(height: 15),
-                  const NumberTile(number: '09125085229'),
-                  const NumberTile(number: '09125085229'),
-                  const NumberTile(number: '09125085229'),
-                  const NumberTile(number: '09125085229'),
-                  const NumberTile(number: '09125085229'),
-                  const NumberTile(number: '09125085229'),
-                  const NumberTile(number: '09125085229'),
+                  Column(
+                    children: (detailPageController.numbers ?? [])
+                        .map(
+                          (number) => NumberTile(number: number['number']),
+                        )
+                        .toList(),
+                  )
                 ],
               ),
             ),

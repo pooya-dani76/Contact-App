@@ -47,6 +47,8 @@ dependencies:
   flutter_svg:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  dotted_border: ^2.1.0
+  image_cropper: ^8.0.2
 
 dev_dependencies:
   flutter_test:

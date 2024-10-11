@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls
 
 import 'dart:io';
-import 'package:get/get.dart';
 import 'package:path/path.dart';
 import 'package:special_phone_book/storage/models/models.dart';
 import 'package:special_phone_book/utils/utils.dart';
@@ -67,35 +66,17 @@ class Storage {
   static Future<void> addContactNumbers({required Contact contact}) async {
     Database database = await openDB();
     Map info = contact.getNumberInfo();
-    info['numbers'].forEach((number) async {
+    for (var number in info['numbers']) {
       try {
         await database.insert("Numbers", {
           "contact": info['contact'],
           "number": number,
         });
       } catch (e) {
-        Utils.showToast(message: "Number".tr + number.toString() + "Not Added!".tr, isError: true);
+        Utils.showToast(message: "شماره $number از قبل موجود است", isError: true);
       }
-    });
-    await database.close();
-  }
-
-  static Future<int> addNewContact({required Contact contact}) async {
-    // for (var element in contact.getNumberInfo()['numbers']) {
-    //   bool isExist = await numberIsExist(number: element);
-    //   if (isExist) {
-    //     Utils.showToast(message: "Contact Saving Error!", isError: true);
-    //     return -1;
-    //   }
-    // }
-    bool isAdded = await createBaseContact(contact: contact);
-    if (isAdded) {
-      await addContactNumbers(contact: contact);
-      return 1;
-    } else {
-      Utils.showToast(message: "Contact Saving Error!", isError: true);
-      return -1;
     }
+    await database.close();
   }
 
 // ---------------------------------Read------------------------------------------
@@ -111,22 +92,14 @@ class Storage {
 
   static Future<Map> getContactBaseInfo({required int contactId}) async {
     Database database = await openDB();
-    List data = await database.query(
-      'Contacts',
-      where: 'id = ?',
-      whereArgs: [contactId]
-    );
+    List data = await database.query('Contacts', where: 'id = ?', whereArgs: [contactId]);
     await database.close();
     return data[0];
   }
 
   static Future getContactNumberInfo({required int contactId}) async {
     Database database = await openDB();
-    List data = await database.query(
-      'Numbers',
-      where: 'contact = ?',
-      whereArgs: [contactId]
-    );
+    List data = await database.query('Numbers', where: 'contact = ?', whereArgs: [contactId]);
     await database.close();
     return data;
   }
