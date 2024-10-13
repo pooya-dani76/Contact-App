@@ -1,10 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:special_phone_book/pages/home_page/controller/home_page_controller.dart';
-import 'package:special_phone_book/storage/functions/functions.dart';
 import 'package:special_phone_book/storage/models/models.dart';
-import 'package:special_phone_book/utils/utils.dart';
 
 class EditPageController extends GetxController {
   final Map? info;
@@ -13,6 +10,12 @@ class EditPageController extends GetxController {
   List<TextEditingController> numberControllers = [TextEditingController()];
 
   EditPageController({this.info});
+
+  @override
+  void onInit() {
+    loadContactData();
+    super.onInit();
+  }
 
   void setControllerText({required TextEditingController controller, required String text}) {
     controller.text = text;
@@ -48,26 +51,27 @@ class EditPageController extends GetxController {
     }
   }
 
-  Future<void> saveContact() async {
-    HomePageController homePageController = Get.find();
-    if (nameController.text.isNotEmpty && numberControllers[0].text.isNotEmpty) {
-      Contact contact = Contact(
-          name: nameController.text,
-          picturePath: picPath,
-          numbers: numberControllers.map((element) => element.text).toList());
-        bool isCreated = await Storage.createBaseContact(contact: contact);
-        if (isCreated) {
-            await Storage.addContactNumbers(contact: contact);
-            Get.back();
-            homePageController.loadData();
-            Utils.showToast(message: 'مخاطب با موفقیت ذخیره شد', isError: false);
-        }
-        else{
-          Utils.showToast(message: 'خطا در ذخیره سازی مخاطب', isError: true);
-        }
-    }
-    else{
-      Utils.showToast(message: 'نام مخاطب و شماره آن نمی‌تواند خالی باشد', isError: true);
+  Future<void> saveContact({required Contact contact}) async {
+    
+  }
+
+  Future<void> updateExistingContact({required Contact contact}) async {
+    
+  }
+
+  Future<void> onSubmitTap({required bool isUpdate}) async {
+    
+  }
+
+  Future<void> loadContactData() async {
+    if (info != null) {
+      numberControllers.clear();
+      picPath = info!['base']['pic_path'];
+      for (var number in info!['numbers']) {
+        numberControllers.add(TextEditingController(text: number['number']));
+      }
+      nameController.text = info!['base']['name'];
+      update();
     }
   }
 }

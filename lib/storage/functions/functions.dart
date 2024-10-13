@@ -1,124 +1,126 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls
 
-import 'dart:io';
-import 'package:path/path.dart';
+import 'package:hive/hive.dart';
 import 'package:special_phone_book/storage/models/models.dart';
 import 'package:special_phone_book/utils/utils.dart';
-import 'package:sqflite/sqflite.dart';
 
 class Storage {
-  static List initScripts = [
-    """CREATE TABLE IF NOT EXISTS Contacts(
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      pic_path TEXT NOT NULL)""",
-    //----------------------------------------
-    """CREATE TABLE IF NOT EXISTS Numbers(
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-  	  contact INTEGER NOT NULL,
-  	  number TEXT NOT NULL UNIQUE,
-      FOREIGN KEY (contact) REFERENCES Contacts(id))"""
-  ];
+  // -----------------------------ID Generator--------------------------------
+  static Future<Box> openIdGeneratorBox() async {
+    Box box = await Hive.openBox('id_generator');
+    return box;
+  }
 
-  static Future<Database> openDB() async {
-    var databasesPath = await getDatabasesPath();
-    var path = join(databasesPath, 'contacts.db');
+  static Future<void> closeIdGeneratorBox() async {
+    Box box = await openIdGeneratorBox();
+    await box.close();
+  }
 
+  static Future<int> generateId() async {
+    Box box = await openIdGeneratorBox();
+    int id = box.get('last_id') ?? 0;
+    id = id + 1;
+    await box.put('last_id', id);
+    await closeIdGeneratorBox();
+    return id;
+  }
+
+// -----------------------------Contacts---------------------------------
+  static Future<Box> openContactsBox() async {
+    Box box = await Hive.openBox('Contacts');
+    return box;
+  }
+
+  static Future<void> closeContactBox() async {
+    Box box = await openContactsBox();
+    await box.close();
+  }
+
+  static Future<List> sortContacts({required List data}) async {
+    data.sort((a, b) => a.name!.compareTo(b.name!));
+    return data;
+  }
+
+//----------------------------------Create--------------------------------
+  static Future<bool> addContact({required Contact contact}) async {
     try {
-      await Directory(databasesPath).create(recursive: true);
+      Box box = await openContactsBox();
+      contact.id = await generateId();
+      await box.put(contact.id, contact);
+      await closeContactBox();
+      return true;
     } catch (e) {
       Utils.logEvent(message: e.toString(), logType: LogType.error);
+      return false;
     }
-
-    Database db = await openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) => initScripts.forEach((element) => db.execute(element)),
-    );
-
-    return db;
   }
 
-  static Future<bool> numberIsExist({required String number}) async {
-    Database database = await openDB();
-    List data = await database.query(
-      'Numbers',
-      where: 'number = ?',
-      whereArgs: [number],
-    );
-    await database.close();
-    return data.isNotEmpty;
-  }
-
-// ---------------------------------Create----------------------------------------
-  static Future<bool> createBaseContact({required Contact contact}) async {
-    Database database = await openDB();
-    int response = await database.insert(
-      'Contacts',
-      contact.getBaseInfo(),
-      conflictAlgorithm: ConflictAlgorithm.ignore,
-    );
-    contact.setContactId(createdId: response);
-    await database.close();
-    return response != 0;
-  }
-
-  static Future<void> addContactNumbers({required Contact contact}) async {
-    Database database = await openDB();
-    Map info = contact.getNumberInfo();
-    for (var number in info['numbers']) {
-      try {
-        await database.insert("Numbers", {
-          "contact": info['contact'],
-          "number": number,
-        });
-      } catch (e) {
-        Utils.showToast(message: "شماره $number از قبل موجود است", isError: true);
-      }
+  //----------------------------------Read----------------------------------
+  static Future<List?> getAllContacts() async {
+    try {
+      Box box = await openContactsBox();
+      List data = box.values.toList();
+      data = await sortContacts(data: data);
+      await closeContactBox();
+      return data;
+    } catch (e) {
+      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      return null;
     }
-    await database.close();
   }
 
-// ---------------------------------Read------------------------------------------
-  static Future<List> getContacts() async {
-    Database database = await openDB();
-    List data = await database.query(
-      'Contacts',
-      orderBy: 'name',
-    );
-    await database.close();
-    return data;
+  static Future<Map?> getContact({required int contactId}) async {
+    try {
+      Box box = await openContactsBox();
+      Map data = box.get(contactId);
+      await closeContactBox();
+      return data;
+    } catch (e) {
+      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      return null;
+    }
   }
 
-  static Future<Map> getContactBaseInfo({required int contactId}) async {
-    Database database = await openDB();
-    List data = await database.query('Contacts', where: 'id = ?', whereArgs: [contactId]);
-    await database.close();
-    return data[0];
+  static Future<List?> searchContact({required String search}) async {
+    try {
+      Box box = await openContactsBox();
+      List data = box.values
+          .where((contact) =>
+              contact.name.contains(search) ||
+              contact.numbers.toList().any((String number) => number.contains(search)))
+          .toList();
+      data = await sortContacts(data: data);
+      await closeContactBox();
+      return data;
+    } catch (e) {
+      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      return null;
+    }
   }
 
-  static Future getContactNumberInfo({required int contactId}) async {
-    Database database = await openDB();
-    List data = await database.query('Numbers', where: 'contact = ?', whereArgs: [contactId]);
-    await database.close();
-    return data;
+  //--------------------------------Update----------------------------------
+  static Future<bool> updateContact({required Contact contact}) async {
+    try {
+      Box box = await openContactsBox();
+      await box.put(contact.id, contact);
+      await closeContactBox();
+      return true;
+    } catch (e) {
+      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      return false;
+    }
   }
 
-  static Future searchContact({required String searchText}) async {
-    Database database = await openDB();
-    List data =
-        await database.rawQuery('''SELECT * FROM Contacts WHERE name LIKE "%$searchText%"''');
-    await database.close();
-    return data;
+  //----------------------------------Delete--------------------------------
+  static Future<bool> deleteContact({required int contactId}) async {
+    try {
+      Box box = await openContactsBox();
+      await box.delete(contactId);
+      await closeContactBox();
+      return true;
+    } catch (e) {
+      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      return false;
+    }
   }
-
-// ---------------------------------Update----------------------------------------
-  static Future updateContactBaseInfo({required Contact contact}) async {}
-
-  static Future updateContactNumber() async {}
-
-// ---------------------------------Delete----------------------------------------
-  static Future deleteContact() async {}
-
-  static Future deleteNumber() async {}
 }

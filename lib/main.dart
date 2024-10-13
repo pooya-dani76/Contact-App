@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:special_phone_book/routes/routes.dart';
-import 'package:special_phone_book/storage/functions/functions.dart';
+import 'package:special_phone_book/storage/models/models.dart';
 import 'package:special_phone_book/utils/utils.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    await Storage.openDB();
     await Hive.initFlutter();
+    Hive.registerAdapter(ContactAdapter());
   } catch (e) {
     Utils.logEvent(message: e.toString(), logType: LogType.error);
   }

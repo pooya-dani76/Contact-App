@@ -38,13 +38,9 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: CustomTextField(
-                            controller: homePageController.searchController,
-                            maxLines: 1,
-                            onChanged: (value) => Future.delayed(
-                              const Duration(milliseconds: 500),
-                              () => homePageController.search(),
-                            ),
-                          ),
+                              controller: homePageController.searchController,
+                              maxLines: 1,
+                              onChanged: onSearchValueChanged),
                         ),
                       ],
                     ),
@@ -92,9 +88,9 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.only(bottom: 80),
                     physics: const BouncingScrollPhysics(),
                     itemBuilder: (context, index) => ContactCard(
-                      contactId: homePageController.data![index]['id'],
-                      avatar: homePageController.data![index]['pic_path'],
-                      name: homePageController.data![index]['name'].toString(),
+                      contactId: homePageController.data![index].id,
+                      avatar: homePageController.data![index].picturePath,
+                      name: homePageController.data![index].name,
                     ),
                     itemCount: homePageController.data!.length,
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

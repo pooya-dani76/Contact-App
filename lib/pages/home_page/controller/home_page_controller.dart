@@ -19,12 +19,12 @@ class HomePageController extends GetxController {
   }
 
   Future<void> loadData() async {
-    data = await Storage.getContacts();
+    data = await Storage.getAllContacts();
     update();
   }
 
   Future<void> search() async {
-    data = await Storage.searchContact(searchText: searchController.text);
+    data = await Storage.searchContact(search: searchController.text);
     update();
   }
 }
@@ -34,4 +34,16 @@ void onCloseSearchButtonTap() {
   homePageController.setSearchMode(false);
   homePageController.searchController.clear();
   homePageController.loadData();
+}
+
+void onSearchValueChanged(value) {
+  HomePageController homePageController = Get.find();
+  Future.delayed(
+    const Duration(milliseconds: 500),
+    (){
+      if (value == homePageController.searchController.text) {
+        homePageController.search();
+      }
+    },
+  );
 }

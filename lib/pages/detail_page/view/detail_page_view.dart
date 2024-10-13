@@ -22,17 +22,17 @@ class DetailPage extends StatelessWidget {
       return Scaffold(
         body: Column(
           children: [
-            CustomAppBar(
+            const CustomAppBar(
               title: '',
               leading: [
                 CustomButton(
-                  onTap: () {},
+                  onTap: onEditTap,
                   color: Colors.blue,
-                  maxSize: const Size(35, 35),
-                  child: const Icon(Icons.edit_rounded),
+                  maxSize: Size(35, 35),
+                  child: Icon(Icons.edit_rounded),
                 ),
               ],
-              trailing: const [
+              trailing: [
                 Spacer(),
                 CustomBackButton(),
               ],

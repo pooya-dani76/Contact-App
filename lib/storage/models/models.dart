@@ -1,30 +1,35 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-class Contact {
+import 'package:hive/hive.dart';
+
+part 'models.g.dart';
+
+@HiveType(typeId: 0)
+class Contact extends HiveObject {
+  @HiveField(0)
   int? id;
+
+  @HiveField(1)
   String? name;
+
+  @HiveField(2)
   List<String>? numbers;
+
+  @HiveField(3)
   String? picturePath;
 
   Contact({
+    this.id,
     this.name,
     this.numbers,
     this.picturePath,
   });
 
-  void setContactId({required int createdId})=> id = createdId;
-
-  Map<String, dynamic> getBaseInfo(){
+  @override
+  String toString() {
     return {
       'id': id,
       'name': name,
       'pic_path': picturePath,
-    };
-  }
-
-  Map<String, dynamic> getNumberInfo(){
-    return {
-      'contact': id,
       'numbers': numbers,
-    };
+    }.toString();
   }
 }

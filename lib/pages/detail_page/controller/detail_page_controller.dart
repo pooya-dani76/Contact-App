@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
-import 'package:special_phone_book/storage/functions/functions.dart';
+import 'package:special_phone_book/routes/routes.dart';
 
 class DetailPageController extends GetxController {
-  final Map contactBaseInfo;
+  Map contactBaseInfo;
   List? numbers;
 
   DetailPageController({required this.contactBaseInfo});
@@ -13,8 +13,19 @@ class DetailPageController extends GetxController {
     super.onInit();
   }
 
-  setContactInfo() async {
-    numbers = await Storage.getContactNumberInfo(contactId: contactBaseInfo['id']);
+  void setContactInfo() async {
     update();
   }
+
+  Future<void> reloadContact() async {
+    setContactInfo();
+  }
+}
+
+void onEditTap() {
+  DetailPageController detailPageController = Get.find();
+  routeToPage(page: Routes.editPage, arguments: {
+    'base': detailPageController.contactBaseInfo,
+    'numbers': detailPageController.numbers
+  });
 }

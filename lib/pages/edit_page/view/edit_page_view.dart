@@ -26,7 +26,7 @@ class EditPage extends StatelessWidget {
             trailing: const [Spacer(), CustomBackButton()],
             leading: [
               CustomButton(
-                onTap: () async => await editPageController.saveContact(),
+                onTap: () => editPageController.onSubmitTap(isUpdate: Get.arguments != null),
                 child: const Icon(CupertinoIcons.check_mark),
               )
             ],
@@ -67,7 +67,7 @@ class EditPage extends StatelessWidget {
                         children: [
                           if (editPageController.numberControllers.length > 1) ...{
                             CustomButton(
-                              onTap: ()=> editPageController.removeNumber(index: index),
+                              onTap: () => editPageController.removeNumber(index: index),
                               maxSize: const Size(40, 40),
                               color: Colors.red,
                               child: const Icon(CupertinoIcons.minus),
