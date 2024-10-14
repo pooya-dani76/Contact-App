@@ -1,11 +1,16 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:special_phone_book/pages/detail_page/controller/detail_page_controller.dart';
+import 'package:special_phone_book/pages/home_page/controller/home_page_controller.dart';
+import 'package:special_phone_book/storage/functions/functions.dart';
 import 'package:special_phone_book/storage/models/models.dart';
+import 'package:special_phone_book/utils/utils.dart';
 
 class EditPageController extends GetxController {
-  final Map? info;
-  String picPath = '';
+  Map? info;
+  Contact? contact;
+  String? picPath;
   TextEditingController nameController = TextEditingController();
   List<TextEditingController> numberControllers = [TextEditingController()];
 
@@ -15,10 +20,6 @@ class EditPageController extends GetxController {
   void onInit() {
     loadContactData();
     super.onInit();
-  }
-
-  void setControllerText({required TextEditingController controller, required String text}) {
-    controller.text = text;
   }
 
   void addNumber() {
@@ -38,40 +39,71 @@ class EditPageController extends GetxController {
     );
 
     if (result != null) {
-      // File file = File(result.files.single.path!);
-      // CroppedFile? croppedFile = await ImageCropper().cropImage(
-      //   sourcePath: File(result.files.single.path!).path,
-      //   aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
-      // );
-      // if (croppedFile != null) {
-      // picPath = croppedFile.path;
       picPath = result.files.single.path!;
       update();
-      // }
     }
-  }
-
-  Future<void> saveContact({required Contact contact}) async {
-    
-  }
-
-  Future<void> updateExistingContact({required Contact contact}) async {
-    
-  }
-
-  Future<void> onSubmitTap({required bool isUpdate}) async {
-    
   }
 
   Future<void> loadContactData() async {
     if (info != null) {
-      numberControllers.clear();
-      picPath = info!['base']['pic_path'];
-      for (var number in info!['numbers']) {
-        numberControllers.add(TextEditingController(text: number['number']));
+      contact = info!['contact'];
+      picPath = contact!.picturePath;
+      if (contact!.numbers != null) {
+        numberControllers.clear();
+        for (var number in contact!.numbers!) {
+          numberControllers.add(TextEditingController(text: number));
+        }
       }
-      nameController.text = info!['base']['name'];
+      nameController.text = contact!.name!;
       update();
     }
+  }
+}
+
+Future<bool> saveContact() async {
+  EditPageController editPageController = Get.find();
+  bool isSuccess = await Storage.addContact(
+      contact: Contact(
+    name: editPageController.nameController.text,
+    picturePath: editPageController.picPath,
+    numbers: editPageController.numberControllers.map((x) => x.text).toList(),
+  ));
+  return isSuccess;
+}
+
+Future<bool> updateExistingContact({required Contact contact}) async {
+  EditPageController editPageController = Get.find();
+  bool isSuccess = await Storage.updateContact(
+      contact: Contact(
+    id: contact.id,
+    name: editPageController.nameController.text,
+    picturePath: editPageController.picPath,
+    numbers: editPageController.numberControllers.map((x) => x.text).toList(),
+  ));
+  return isSuccess;
+}
+
+Future<void> onSubmitTap({required bool isUpdate}) async {
+  EditPageController editPageController = Get.find();
+  HomePageController homePageController = Get.find();
+  bool? isSuccess;
+
+  if (isUpdate) {
+    isSuccess = await updateExistingContact(contact: editPageController.contact!);
+  } else {
+    isSuccess = await saveContact();
+  }
+  if (isSuccess) {
+    Get.back();
+    Utils.showToast(message: 'عملیات با موفقیت انجام شد', isError: false);
+    try {
+      DetailPageController detailPageController = Get.find();
+      await detailPageController.getContactInfo();
+    } catch (e) {
+      Utils.logEvent(message: 'DetailPageController Not Put', logType: LogType.error);
+    }
+    await homePageController.loadData();
+  } else {
+    Utils.showToast(message: 'خطایی رخ داد', isError: true);
   }
 }

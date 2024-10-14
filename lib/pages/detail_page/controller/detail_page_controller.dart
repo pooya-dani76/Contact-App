@@ -1,31 +1,30 @@
 import 'package:get/get.dart';
 import 'package:special_phone_book/routes/routes.dart';
+import 'package:special_phone_book/storage/functions/functions.dart';
+import 'package:special_phone_book/storage/models/models.dart';
 
 class DetailPageController extends GetxController {
-  Map contactBaseInfo;
-  List? numbers;
+  Map? contactId;
+  Contact? contact;
 
-  DetailPageController({required this.contactBaseInfo});
+  DetailPageController({required this.contactId});
 
   @override
   onInit() {
-    setContactInfo();
+    getContactInfo();
     super.onInit();
   }
 
-  void setContactInfo() async {
+  Future<void> getContactInfo() async {
+    contact = await Storage.getContact(contactId: contactId!['id']);
     update();
-  }
-
-  Future<void> reloadContact() async {
-    setContactInfo();
   }
 }
 
 void onEditTap() {
   DetailPageController detailPageController = Get.find();
-  routeToPage(page: Routes.editPage, arguments: {
-    'base': detailPageController.contactBaseInfo,
-    'numbers': detailPageController.numbers
-  });
+  routeToPage(
+    page: Routes.editPage,
+    arguments: {'contact': detailPageController.contact},
+  );
 }

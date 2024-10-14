@@ -21,7 +21,7 @@ class ContactCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(15),
       onTap: () => routeToPage(
         page: Routes.detailPage,
-        arguments: {'name': name, 'id': contactId, 'pic_path': avatar},
+        arguments: {'id': contactId},
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),

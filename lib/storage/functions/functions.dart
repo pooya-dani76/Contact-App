@@ -69,12 +69,12 @@ class Storage {
     }
   }
 
-  static Future<Map?> getContact({required int contactId}) async {
+  static Future<Contact?> getContact({required int contactId}) async {
     try {
       Box box = await openContactsBox();
-      Map data = box.get(contactId);
+      Contact contact = box.get(contactId);
       await closeContactBox();
-      return data;
+      return contact;
     } catch (e) {
       Utils.logEvent(message: e.toString(), logType: LogType.error);
       return null;

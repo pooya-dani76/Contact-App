@@ -7,7 +7,7 @@ import 'package:special_phone_book/pages/widgets/contact_card.dart';
 import 'package:special_phone_book/pages/widgets/custom_button.dart';
 import 'package:special_phone_book/pages/widgets/custom_text.dart';
 import 'package:special_phone_book/pages/widgets/custom_text_field.dart';
-import 'package:special_phone_book/routes/routes.dart';
+import 'package:special_phone_book/pages/widgets/loading_indicator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
                           child: CustomTextField(
                               controller: homePageController.searchController,
                               maxLines: 1,
+                              autofocus: true,
                               onChanged: onSearchValueChanged),
                         ),
                       ],
@@ -48,15 +49,15 @@ class _HomePageState extends State<HomePage> {
                 : CustomAppBar(
                     title: 'مخاطبین',
                     leading: [
-                      CustomButton(
-                        onTap: () => routeToPage(page: Routes.editPage),
+                      const CustomButton(
+                        onTap: onAddContactTap,
                         color: Colors.blue,
-                        maxSize: const Size(35, 35),
-                        child: const Icon(Icons.add),
+                        maxSize: Size(35, 35),
+                        child: Icon(Icons.add),
                       ),
                       const SizedBox(width: 10),
                       CustomButton(
-                        onTap: () => homePageController.setSearchMode(true),
+                        onTap: onSearchButtonTap,
                         color: Colors.greenAccent[400],
                         maxSize: const Size(35, 35),
                         child: const Icon(Icons.search_rounded),
@@ -102,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                   );
                 }
               } else {
-                return const Center(child: CircularProgressIndicator());
+                return const LoadingIndicator();
               }
             }),
           ),

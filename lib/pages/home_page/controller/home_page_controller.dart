@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:special_phone_book/routes/routes.dart';
 import 'package:special_phone_book/storage/functions/functions.dart';
 
 class HomePageController extends GetxController {
@@ -40,10 +41,19 @@ void onSearchValueChanged(value) {
   HomePageController homePageController = Get.find();
   Future.delayed(
     const Duration(milliseconds: 500),
-    (){
+    () {
       if (value == homePageController.searchController.text) {
         homePageController.search();
       }
     },
   );
+}
+
+void onAddContactTap() {
+  routeToPage(page: Routes.editPage);
+}
+
+void onSearchButtonTap(){
+  HomePageController homePageController = Get.find();
+  homePageController.setSearchMode(true);
 }

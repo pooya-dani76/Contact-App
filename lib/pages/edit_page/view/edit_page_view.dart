@@ -22,11 +22,11 @@ class EditPage extends StatelessWidget {
       body: Column(
         children: [
           CustomAppBar(
-            title: 'افزودن مخاطب',
+            title: Get.arguments != null ? 'ویرایش مخاطب' :'افزودن مخاطب',
             trailing: const [Spacer(), CustomBackButton()],
             leading: [
               CustomButton(
-                onTap: () => editPageController.onSubmitTap(isUpdate: Get.arguments != null),
+                onTap: () => onSubmitTap(isUpdate: Get.arguments != null),
                 child: const Icon(CupertinoIcons.check_mark),
               )
             ],
@@ -41,7 +41,7 @@ class EditPage extends StatelessWidget {
                   child: InkWell(
                     onTap: editPageController.setPicture,
                     child: Avatar(
-                      image: editPageController.picPath,
+                      image: editPageController.picPath ?? '',
                       maxSize: const Size(150, 150),
                     ),
                   ),

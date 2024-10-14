@@ -13,6 +13,7 @@ class CustomTextField extends StatefulWidget {
     this.cursorColor,
     this.inputDecoration,
     this.onChanged,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
@@ -23,6 +24,7 @@ class CustomTextField extends StatefulWidget {
   final Color? cursorColor;
   final InputDecoration? inputDecoration;
   final Function(String)? onChanged;
+  final bool? autofocus;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -77,6 +79,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           inputFormatters: widget.onlyNumeric! ? [FilteringTextInputFormatter.digitsOnly] : null,
           // cursorColor: widget.cursorColor ?? appController.appColor,
           controller: widget.controller,
+          autofocus: widget.autofocus!,
           style: const TextStyle(fontFamily: "Vazir"),
           onChanged: widget.onChanged,
           decoration: InputDecoration(
