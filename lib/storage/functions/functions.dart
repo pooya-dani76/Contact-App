@@ -25,6 +25,29 @@ class Storage {
     return id;
   }
 
+// -----------------------------MySelf---------------------------------
+  static Future<bool> saveMyInfo({required Contact contact}) async {
+    try {
+      Box box = await Hive.openBox('my_self');
+      await box.put('me', contact);
+      await box.close();
+      return true;
+    } catch (e) {
+      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      return false;
+    }
+  }
+
+  static Future<Contact?> getMyInfo() async {
+    Box box = await Hive.openBox('my_self');
+    if (box.toMap()['me'] == null) {
+      await box.put('me', Contact());
+    }
+    Contact contact = await box.get('me');
+    await box.close();
+    return contact;
+  }
+
 // -----------------------------Contacts---------------------------------
   static Future<Box> openContactsBox() async {
     Box box = await Hive.openBox('Contacts');

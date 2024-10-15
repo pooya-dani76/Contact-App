@@ -51,7 +51,7 @@ class DetailPage extends StatelessWidget {
                     children: [
                       Center(
                         child: Avatar(
-                          image: controller.contact!.picturePath!,
+                          image: controller.contact!.picturePath ?? '',
                           maxSize: const Size(150, 150),
                         ),
                       ),
@@ -69,21 +69,15 @@ class DetailPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             CustomButton(
-                              onTap: () {},
-                              color: Colors.red,
-                              maxSize: const Size(40, 40),
-                              child: const Icon(CupertinoIcons.mail_solid),
-                            ),
-                            const SizedBox(width: 20),
-                            CustomButton(
-                              onTap: () {},
+                              onTap: () =>
+                                  onBubbleMessageTap(number: controller.contact!.numbers![0]),
                               color: Colors.blue,
                               maxSize: const Size(40, 40),
                               child: const Icon(CupertinoIcons.bubble_left_fill),
                             ),
                             const SizedBox(width: 20),
                             CustomButton(
-                              onTap: () {},
+                              onTap: () => onPhoneTap(number: controller.contact!.numbers![0]),
                               color: Colors.lightGreen,
                               maxSize: const Size(40, 40),
                               child: const Icon(CupertinoIcons.phone_fill),
@@ -101,7 +95,11 @@ class DetailPage extends StatelessWidget {
                       Column(
                         children: (controller.contact!.numbers ?? [])
                             .map(
-                              (number) => NumberTile(number: number),
+                              (number) => NumberTile(
+                                number: number,
+                                onBubbleMessageTap: () => onBubbleMessageTap(number: number),
+                                onPhoneTap: () => onPhoneTap(number: number),
+                              ),
                             )
                             .toList(),
                       )

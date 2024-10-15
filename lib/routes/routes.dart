@@ -42,6 +42,10 @@ class HomePageBinding extends Bindings {
 //   }
 // }
 
-void routeToPage({required String page, Map? arguments}) async {
-  await Get.toNamed(page, arguments: arguments);
+void routeToPage({required String page, Map? arguments, bool? clearPreviousPages = false}) async {
+  if (clearPreviousPages!) {
+    await Get.offAndToNamed(page, arguments: arguments);
+  } else {
+    await Get.toNamed(page, arguments: arguments);
+  }
 }

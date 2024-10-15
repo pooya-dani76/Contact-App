@@ -22,13 +22,26 @@ class EditPage extends StatelessWidget {
       body: Column(
         children: [
           CustomAppBar(
-            title: Get.arguments != null ? 'ویرایش مخاطب' :'افزودن مخاطب',
+            title: Get.arguments != null ? 'ویرایش' : 'افزودن',
             trailing: const [Spacer(), CustomBackButton()],
             leading: [
               CustomButton(
                 onTap: () => onSubmitTap(isUpdate: Get.arguments != null),
-                child: const Icon(CupertinoIcons.check_mark),
-              )
+                color: Colors.green,
+                maxSize: const Size(35, 35),
+                child: const Icon(CupertinoIcons.check_mark, size: 20),
+              ),
+              if (Get.arguments != null) ...{
+                if (!Get.arguments.containsKey('me')) ...{
+                  const SizedBox(width: 15),
+                  const CustomButton(
+                    onTap: deleteContact,
+                    color: Colors.red,
+                    maxSize: Size(35, 35),
+                    child: Icon(CupertinoIcons.delete, size: 20),
+                  )
+                }
+              }
             ],
           ),
           const SizedBox(height: 20),

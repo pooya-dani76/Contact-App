@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:special_phone_book/pages/home_page/controller/home_page_controller.dart';
 import 'package:special_phone_book/pages/widgets/app_bar.dart';
 import 'package:special_phone_book/pages/widgets/avatar.dart';
@@ -63,11 +64,14 @@ class _HomePageState extends State<HomePage> {
                         child: const Icon(Icons.search_rounded),
                       ),
                     ],
-                    trailing: const [
-                      Spacer(),
-                      Avatar(
-                        image: '',
-                        maxSize: Size(35, 35),
+                    trailing: [
+                      const Spacer(),
+                      InkWell(
+                        onTap: onMyPicTap,
+                        child: Avatar(
+                          image: homePageController.myPicPath ?? '',
+                          maxSize: const Size(35, 35),
+                        ),
                       ),
                     ],
                   ),
@@ -75,36 +79,35 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 30),
           Expanded(
             child: GetBuilder<HomePageController>(builder: (homePageController) {
-              if (homePageController.data != null) {
-                if (homePageController.data!.isEmpty) {
-                  return const Center(
-                    child: CustomText(
-                      text: 'مخاطبی ذخیره نشده است',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  );
-                } else {
-                  return GridView.builder(
-                    padding: const EdgeInsets.only(bottom: 80),
-                    physics: const BouncingScrollPhysics(),
-                    itemBuilder: (context, index) => ContactCard(
-                      contactId: homePageController.data![index].id,
-                      avatar: homePageController.data![index].picturePath,
-                      name: homePageController.data![index].name,
-                    ),
-                    itemCount: homePageController.data!.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 5.0,
-                      mainAxisSpacing: 5.0,
-                      childAspectRatio: 0.8,
-                    ),
-                  );
-                }
-              } else {
-                return const LoadingIndicator();
-              }
+              return ModalProgressHUD(
+                  inAsyncCall: homePageController.data == null,
+                  progressIndicator: const LoadingIndicator(),
+                  child: homePageController.data != null
+                      ? (homePageController.data!.isEmpty
+                          ? const Center(
+                              child: CustomText(
+                                text: 'مخاطبی ذخیره نشده است',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            )
+                          : GridView.builder(
+                              padding: const EdgeInsets.only(bottom: 80),
+                              physics: const BouncingScrollPhysics(),
+                              itemBuilder: (context, index) => ContactCard(
+                                contactId: homePageController.data![index].id,
+                                avatar: homePageController.data![index].picturePath,
+                                name: homePageController.data![index].name,
+                              ),
+                              itemCount: homePageController.data!.length,
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 5.0,
+                                mainAxisSpacing: 5.0,
+                                childAspectRatio: 0.8,
+                              ),
+                            ))
+                      : Container());
             }),
           ),
         ],

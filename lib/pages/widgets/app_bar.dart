@@ -16,7 +16,7 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 25, left: 10, right: 10),
+      padding: const EdgeInsets.only(top: 40, left: 10, right: 10),
       height: 80,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

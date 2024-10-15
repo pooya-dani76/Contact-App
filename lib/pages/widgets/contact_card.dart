@@ -11,7 +11,7 @@ class ContactCard extends StatelessWidget {
     required this.contactId,
   });
 
-  final String avatar;
+  final String? avatar;
   final String name;
   final int contactId;
 
@@ -29,7 +29,7 @@ class ContactCard extends StatelessWidget {
           children: [
             Expanded(
                 child: Avatar(
-              image: avatar,
+              image: avatar ?? '',
               borderRadius: 15,
             )),
             const SizedBox(height: 10),
