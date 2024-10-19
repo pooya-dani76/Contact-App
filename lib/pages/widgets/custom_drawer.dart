@@ -6,7 +6,9 @@ import 'package:special_phone_book/pages/widgets/custom_text.dart';
 import 'package:special_phone_book/routes/routes.dart';
 
 class CustomDrawer extends StatelessWidget {
-  const CustomDrawer({super.key});
+  const CustomDrawer({super.key, required this.version});
+
+  final String version;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +48,12 @@ class CustomDrawer extends StatelessWidget {
               leading: const Icon(Icons.settings),
               title: const CustomText(text: 'تنظیمات', fontWeight: FontWeight.bold),
               onTap: () => routeToPage(page: Routes.settingPage),
+            ),
+            const Spacer(),
+            CustomText(
+              text: 'Super Phone Book App V $version',
+              color: Colors.grey,
+              fontWeight: FontWeight.bold,
             ),
           ],
         ),

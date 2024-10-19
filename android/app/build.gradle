@@ -6,6 +6,7 @@ plugins {
 }
 
 android {
+    project.ext.set("appName", "super phone book")
     namespace = "com.example.special_phone_book"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
@@ -28,6 +29,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        setProperty("archivesBaseName", "$appName-$versionName-$versionCode")
     }
 
     buildTypes {
@@ -35,6 +37,21 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+        }
+    }
+}
+
+def getVersionName() {
+    return project.android.defaultConfig.versionName
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'packageRelease') {
+        task.doLast {
+            def versionName = getVersionName()
+            def apkOutputFile = file("build/app/outputs/flutter-apk/app-release.apk")
+            def newApkFileName = "Super Phone Book-v${versionName}.apk"
+            apkOutputFile.renameTo(file("build/app/outputs/flutter-apk/" + newApkFileName))
         }
     }
 }

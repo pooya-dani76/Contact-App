@@ -25,7 +25,16 @@ class _HomePageState extends State<HomePage> {
     return GetBuilder<HomePageController>(builder: (homePageController) {
       return Scaffold(
         key: scaffoldKey,
-        drawer: const CustomDrawer(),
+        drawer: FutureBuilder(
+          future: getAppVersion(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return CustomDrawer(version: snapshot.data!);
+            } else {
+              return const SizedBox();
+            }
+          },
+        ),
         body: Column(
           children: [
             homePageController.searchMode
