@@ -6,6 +6,7 @@ import 'package:special_phone_book/pages/widgets/app_bar.dart';
 import 'package:special_phone_book/pages/widgets/avatar.dart';
 import 'package:special_phone_book/pages/widgets/contact_card.dart';
 import 'package:special_phone_book/pages/widgets/custom_button.dart';
+import 'package:special_phone_book/pages/widgets/custom_drawer.dart';
 import 'package:special_phone_book/pages/widgets/custom_text.dart';
 import 'package:special_phone_book/pages/widgets/custom_text_field.dart';
 import 'package:special_phone_book/pages/widgets/loading_indicator.dart';
@@ -18,13 +19,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          GetBuilder<HomePageController>(
-            builder: (homePageController) => homePageController.searchMode
+    return GetBuilder<HomePageController>(builder: (homePageController) {
+      return Scaffold(
+        key: scaffoldKey,
+        drawer: const CustomDrawer(),
+        body: Column(
+          children: [
+            homePageController.searchMode
                 ? Container(
                     padding: const EdgeInsets.only(top: 25, left: 10, right: 10),
                     height: 80,
@@ -49,38 +53,39 @@ class _HomePageState extends State<HomePage> {
                   )
                 : CustomAppBar(
                     title: 'مخاطبین',
-                    leading: [
-                      const CustomButton(
-                        onTap: onAddContactTap,
-                        color: Colors.blue,
-                        maxSize: Size(35, 35),
-                        child: Icon(Icons.add),
-                      ),
-                      const SizedBox(width: 10),
+                    trailing: [
+                      const Spacer(),
                       CustomButton(
                         onTap: onSearchButtonTap,
                         color: Colors.greenAccent[400],
                         maxSize: const Size(35, 35),
                         child: const Icon(Icons.search_rounded),
                       ),
+                      const SizedBox(width: 10),
+                      const CustomButton(
+                        onTap: onAddContactTap,
+                        color: Colors.blue,
+                        maxSize: Size(35, 35),
+                        child: Icon(Icons.add),
+                      ),
                     ],
-                    trailing: [
-                      const Spacer(),
+                    leading: [
                       InkWell(
-                        onTap: onMyPicTap,
+                        onTap: () => scaffoldKey.currentState!.openDrawer(),
                         child: Avatar(
-                          image: homePageController.myPicPath ?? '',
+                          image: homePageController.me != null
+                              ? homePageController.me!.picturePath ?? ''
+                              : '',
                           maxSize: const Size(35, 35),
                         ),
                       ),
                     ],
                   ),
-          ),
-          const SizedBox(height: 30),
-          Expanded(
-            child: GetBuilder<HomePageController>(builder: (homePageController) {
-              return ModalProgressHUD(
-                  inAsyncCall: homePageController.data == null,
+            const SizedBox(height: 30),
+            Expanded(
+              child: ModalProgressHUD(
+                  color: Colors.black,
+                  inAsyncCall: homePageController.data == null && homePageController.me == null,
                   progressIndicator: const LoadingIndicator(),
                   child: homePageController.data != null
                       ? (homePageController.data!.isEmpty
@@ -107,11 +112,11 @@ class _HomePageState extends State<HomePage> {
                                 childAspectRatio: 0.8,
                               ),
                             ))
-                      : Container());
-            }),
-          ),
-        ],
-      ),
-    );
+                      : const SizedBox()),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

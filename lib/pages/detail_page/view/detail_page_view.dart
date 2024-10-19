@@ -12,11 +12,26 @@ import 'package:special_phone_book/pages/widgets/loading_indicator.dart';
 import 'package:special_phone_book/pages/widgets/number_tile.dart';
 
 // ignore: must_be_immutable
-class DetailPage extends StatelessWidget {
-  DetailPage({super.key});
+class DetailPage extends StatefulWidget {
+  const DetailPage({super.key});
 
-  DetailPageController detailPageController =
-      Get.put(DetailPageController(contactId: Get.arguments));
+  @override
+  State<DetailPage> createState() => _DetailPageState();
+}
+
+class _DetailPageState extends State<DetailPage> {
+  @override
+  void initState() {
+    Get.put(DetailPageController(contactId: Get.arguments));
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    DetailPageController detailPageController = Get.find();
+    detailPageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -29,6 +29,15 @@ class EditPageController extends GetxController {
     super.onInit();
   }
 
+  bool numbersAllFilled() {
+    for (var i = 0; i < numberControllers.length; i++) {
+      if (numberControllers[i].text.trim().isEmpty) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   void addNumber() {
     numberControllers.add(TextEditingController());
     update();
@@ -112,9 +121,10 @@ Future<void> deleteContact() async {
       onTap: () async {
         bool isSuccess = await Storage.deleteContact(contactId: editPageController.contact!.id!);
         if (isSuccess) {
-          Utils.showToast(message: 'مخاطب حذف شد', isError: false);
+          Get.back();
           await homePageController.loadData();
           routeToPage(page: Routes.homePage, clearPreviousPages: true);
+          Utils.showToast(message: 'مخاطب حذف شد', isError: false);
         } else {
           Utils.showToast(message: 'خطایی رخ داد', isError: true);
         }
@@ -129,7 +139,7 @@ Future<bool> saveContact() async {
   EditPageController editPageController = Get.find();
   bool isSuccess = await Storage.addContact(
       contact: Contact(
-    name: editPageController.nameController.text,
+    name: editPageController.nameController.text.trim(),
     picturePath: editPageController.picPath,
     numbers: editPageController.numberControllers.map((x) => x.text).toList(),
   ));
@@ -138,9 +148,10 @@ Future<bool> saveContact() async {
 
 Future<bool> updateExistingContact({required Contact contact}) async {
   EditPageController editPageController = Get.find();
+  editPageController.numberControllers.retainWhere((x) => x.text.isNotEmpty);
   Contact newContact = Contact(
     id: contact.id,
-    name: editPageController.nameController.text,
+    name: editPageController.nameController.text.trim(),
     picturePath: editPageController.picPath,
     numbers: editPageController.numberControllers.map((x) => x.text).toList(),
   );
@@ -158,22 +169,29 @@ Future<void> onSubmitTap({required bool isUpdate}) async {
   HomePageController homePageController = Get.find();
   bool? isSuccess;
 
-  if (isUpdate) {
-    isSuccess = await updateExistingContact(contact: editPageController.contact!);
-  } else {
-    isSuccess = await saveContact();
-  }
-  if (isSuccess) {
-    Get.back();
-    Utils.showToast(message: 'عملیات با موفقیت انجام شد', isError: false);
-    try {
-      DetailPageController detailPageController = Get.find();
-      await detailPageController.getContactInfo();
-    } catch (e) {
-      Utils.logEvent(message: 'DetailPageController Not Put', logType: LogType.error);
+  if (editPageController.nameController.text.trim().isNotEmpty &&
+      editPageController.numberControllers.isNotEmpty) {
+    if (editPageController.numbersAllFilled()) {
+      if (isUpdate) {
+        isSuccess = await updateExistingContact(contact: editPageController.contact!);
+      } else {
+        isSuccess = await saveContact();
+      }
+      if (isSuccess) {
+        routeToPage(page: Routes.homePage, clearPreviousPages: true);
+        Utils.showToast(message: 'عملیات با موفقیت انجام شد', isError: false);
+        try {
+          DetailPageController detailPageController = Get.find();
+          await detailPageController.getContactInfo();
+        } catch (e) {
+          Utils.logEvent(message: 'DetailPageController Not Put', logType: LogType.error);
+        }
+        await homePageController.loadData();
+      }
+    } else {
+      Utils.showToast(message: "شماره خالی قابل ذخیره سازی نیست", isError: true);
     }
-    await homePageController.loadData();
   } else {
-    Utils.showToast(message: 'خطایی رخ داد', isError: true);
+    Utils.showToast(message: "فیلد نام و شماره‌ها نباید خالی باشد", isError: true);
   }
 }

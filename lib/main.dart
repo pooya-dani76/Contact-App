@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Contacts',
+      title: 'Super Phone Book',
       getPages: Pages.pages,
       initialRoute: Routes.homePage,
       theme: ThemeData.dark(useMaterial3: true).copyWith(

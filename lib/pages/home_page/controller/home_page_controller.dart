@@ -7,7 +7,7 @@ import 'package:special_phone_book/storage/models/models.dart';
 class HomePageController extends GetxController {
   List? data;
   bool searchMode = false;
-  String? myPicPath;
+  Contact? me;
   TextEditingController searchController = TextEditingController();
 
   @override
@@ -23,7 +23,7 @@ class HomePageController extends GetxController {
 
   Future<void> loadData() async {
     data = await Storage.getAllContacts();
-    await setMyPicPath();
+    await setMyInfo();
     update();
   }
 
@@ -32,9 +32,8 @@ class HomePageController extends GetxController {
     update();
   }
 
-  Future<void> setMyPicPath() async {
-    Contact? contact = await Storage.getMyInfo();
-    myPicPath = contact != null ? contact.picturePath : '';
+  Future<void> setMyInfo() async {
+    me = await Storage.getMyInfo();
     update();
   }
 }
@@ -70,3 +69,4 @@ void onSearchButtonTap() {
 void onMyPicTap() {
   routeToPage(page: Routes.editPage, arguments: {'me': true});
 }
+

@@ -11,10 +11,26 @@ import 'package:special_phone_book/pages/widgets/custom_text.dart';
 import 'package:special_phone_book/pages/widgets/custom_text_field.dart';
 
 // ignore: must_be_immutable
-class EditPage extends StatelessWidget {
-  EditPage({super.key});
+class EditPage extends StatefulWidget {
+  const EditPage({super.key});
 
-  EditPageController editPageController = Get.put(EditPageController(info: Get.arguments));
+  @override
+  State<EditPage> createState() => _EditPageState();
+}
+
+class _EditPageState extends State<EditPage> {
+  @override
+  void initState() {
+    Get.put(EditPageController(info: Get.arguments));
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    EditPageController editPageController = Get.find<EditPageController>();
+    editPageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -23,6 +23,15 @@ class Contact {
     this.picturePath,
   });
 
+  Map toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'pic_path': picturePath ?? "",
+      'numbers': numbers,
+    };
+  }
+
   @override
   String toString() {
     return {
@@ -62,3 +71,24 @@ class Contact {
   @override
   int get hashCode => Object.hash(id, name, picturePath, numbers);
 }
+
+Map a = {
+  "1": {
+    "id": 1,
+    "name": "مهدی کونی",
+    "pic_path": "/data/user/0/com.example.special_phone_book/cache/image_cropper_1728954917818.jpg",
+    "numbers": ["09104981584"]
+  },
+  "2": {
+    "id": 2,
+    "name": "بابا۲",
+    "pic_path": "/data/user/0/com.example.special_phone_book/cache/image_cropper_1728954955456.jpg",
+    "numbers": ["09125085229", "09335084229"]
+  },
+  "3": {
+    "id": 3,
+    "name": "ابولفضل چاقال",
+    "pic_path": null,
+    "numbers": ["1545548495"]
+  },
+};
