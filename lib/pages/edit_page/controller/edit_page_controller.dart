@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:special_phone_book/pages/detail_page/controller/detail_page_controller.dart';
+import 'package:intl_phone_field/countries.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:special_phone_book/pages/home_page/controller/home_page_controller.dart';
 import 'package:special_phone_book/pages/widgets/custom_button.dart';
 import 'package:special_phone_book/pages/widgets/custom_text.dart';
@@ -14,14 +15,17 @@ import 'package:special_phone_book/storage/models/models.dart';
 import 'package:special_phone_book/utils/utils.dart';
 
 class EditPageController extends GetxController {
-  Map? info;
-  Contact? contact;
+  int? contactId;
+  Map? contact;
   String? picPath;
-  bool loadMe = false;
   TextEditingController nameController = TextEditingController();
-  List<TextEditingController> numberControllers = [TextEditingController()];
+  List numberControllers = [
+    {'country_code': '98', 'country_symbol': 'IR', 'number': TextEditingController()}
+  ];
+  List emailControllers = [];
+  List<Map> addresses = [];
 
-  EditPageController({this.info});
+  EditPageController({this.contactId});
 
   @override
   void onInit() {
@@ -29,22 +33,32 @@ class EditPageController extends GetxController {
     super.onInit();
   }
 
-  bool numbersAllFilled() {
-    for (var i = 0; i < numberControllers.length; i++) {
-      if (numberControllers[i].text.trim().isEmpty) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   void addNumber() {
-    numberControllers.add(TextEditingController());
+    numberControllers
+        .add({'country_code': '98', 'country_symbol': 'IR', 'number': TextEditingController()});
     update();
   }
 
   void removeNumber({required int index}) {
     numberControllers.removeAt(index);
+    update();
+  }
+
+  void addEmail() {
+    emailControllers.add(TextEditingController());
+    update();
+  }
+
+  void removeEmail({required int index}) {
+    emailControllers.removeAt(index);
+    update();
+  }
+
+  void addAddress() {
+    update();
+  }
+
+  void removeAddress({required int index}) {
     update();
   }
 
@@ -83,115 +97,121 @@ class EditPageController extends GetxController {
     update();
   }
 
-  Future<void> loadContactData() async {
-    if (info != null) {
-      contact = info!.containsKey('me') ? await Storage.getMyInfo() : info!['contact'];
-      picPath = contact!.picturePath;
-      if (contact!.numbers != null) {
-        numberControllers.clear();
-        for (var number in contact!.numbers!) {
-          numberControllers.add(TextEditingController(text: number));
-        }
-      }
-      nameController.text = contact!.name ?? '';
-      update();
-    }
+  void onChangeCountry({required Country country, required int index}) {
+    numberControllers[index]['country_code'] = country.dialCode;
+    numberControllers[index]['country_symbol'] = country.code;
+    update();
   }
+
+  Future<void> loadContactData() async {
+    if (contactId != null) {
+      contact = await Storage.getContactInfo(contactId: contactId!);
+      if (contact != null) {
+        picPath = contact!['base']['picture_path'];
+        nameController.text = contact!['base']['name'];
+        numberControllers.clear();
+        numberControllers.addAll(contact!['numbers']
+            .map((number) => {
+                  'country_code': number['country_code'],
+                  'country_symbol': number['country_symbol'],
+                  'number': TextEditingController(text: number['number'])
+                })
+            .toList());
+        emailControllers =
+            contact!['emails'].map((email) => TextEditingController(text: email['email'])).toList();
+        //todo: load addresses
+      } else {
+        Utils.showToast(message: 'مشکلی در بارگذاری مخاطب وجود دارد', isError: true);
+      }
+    }
+    update();
+  }
+}
+
+Future<void> saveContact() async {
+  EditPageController editPageController = Get.find();
+  await Storage.addContact(contactData: {
+    'base': {
+      'name': editPageController.nameController.text.trim(),
+      'picture_path': editPageController.picPath,
+      'is_me': 0,
+    },
+    'numbers': editPageController.numberControllers
+        .map((element) => {
+              'country_code': element['country_code'],
+              'country_symbol': element['country_symbol'],
+              'number': element['number'].text
+            })
+        .toList(),
+    'emails': editPageController.emailControllers.map((element) => element.text).toList(),
+    'addresses': editPageController.addresses
+  });
+}
+
+Future<void> updateExistingContact({required Contact contact}) async {}
+
+Future<void> onSubmitTap({required bool isUpdate}) async {
+  // EditPageController editPageController = Get.find();
+  HomePageController homePageController = Get.find();
+  await saveContact();
+  homePageController.loadData();
+  routeToPage(page: Routes.homePage, clearPreviousPages: true);
 }
 
 Future<void> deleteContact() async {
   HomePageController homePageController = Get.find();
-  EditPageController editPageController = Get.find();
-  Get.defaultDialog(
-    title: 'آیا از حذف این مخاطب اطمینان دارید؟',
-    titleStyle: const TextStyle(
-      fontFamily: "Vazir",
-      fontSize: 16,
-    ),
-    titlePadding: const EdgeInsets.symmetric(vertical: 20),
-    content: Container(),
-    cancel: CustomButton(
-      maxSize: const Size(100, 50),
-      onTap: () => Get.back(),
-      color: Colors.grey,
-      child: const CustomText(text: 'خیر'),
-    ),
-    confirm: CustomButton(
-      maxSize: const Size(100, 50),
-      onTap: () async {
-        bool isSuccess = await Storage.deleteContact(contactId: editPageController.contact!.id!);
-        if (isSuccess) {
-          Get.back();
-          await homePageController.loadData();
-          routeToPage(page: Routes.homePage, clearPreviousPages: true);
-          Utils.showToast(message: 'مخاطب حذف شد', isError: false);
-        } else {
-          Utils.showToast(message: 'خطایی رخ داد', isError: true);
-        }
-      },
-      color: Colors.red,
-      child: const CustomText(text: 'بله'),
-    ),
+  showCupertinoModalBottomSheet(
+    context: Get.context!,
+    builder: (context) {
+      return Material(
+        color: const Color(0xffefedd4),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 25),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CustomText(
+                  text: 'آیا از حذف این مخاطب اطمینان دارید؟', fontWeight: FontWeight.bold),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CustomButton(
+                    maxSize: const Size(100, 50),
+                    onTap: () => Get.back(),
+                    child: const CustomText(
+                      text: 'خیر',
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff78c7bc),
+                    ),
+                  ),
+                  const SizedBox(width: 30),
+                  CustomButton(
+                    maxSize: const Size(100, 50),
+                    onTap: () async {
+                      bool isSuccess = ''.isEmpty;
+                      // await Storage.deleteContact(contactId: editPageController.contact!.id!);
+                      if (isSuccess) {
+                        Get.back();
+                        await homePageController.loadData();
+                        routeToPage(page: Routes.homePage, clearPreviousPages: true);
+                        Utils.showToast(message: 'مخاطب حذف شد', isError: false);
+                      } else {
+                        Utils.showToast(message: 'خطایی رخ داد', isError: true);
+                      }
+                    },
+                    child: const CustomText(
+                      text: 'بله',
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      );
+    },
   );
-}
-
-Future<bool> saveContact() async {
-  EditPageController editPageController = Get.find();
-  bool isSuccess = await Storage.addContact(
-      contact: Contact(
-    name: editPageController.nameController.text.trim(),
-    picturePath: editPageController.picPath,
-    numbers: editPageController.numberControllers.map((x) => x.text).toList(),
-  ));
-  return isSuccess;
-}
-
-Future<bool> updateExistingContact({required Contact contact}) async {
-  EditPageController editPageController = Get.find();
-  editPageController.numberControllers.retainWhere((x) => x.text.isNotEmpty);
-  Contact newContact = Contact(
-    id: contact.id,
-    name: editPageController.nameController.text.trim(),
-    picturePath: editPageController.picPath,
-    numbers: editPageController.numberControllers.map((x) => x.text).toList(),
-  );
-  bool isSuccess;
-  if (editPageController.info!.containsKey('me')) {
-    isSuccess = await Storage.saveMyInfo(contact: newContact);
-  } else {
-    isSuccess = await Storage.updateContact(contact: newContact);
-  }
-  return isSuccess;
-}
-
-Future<void> onSubmitTap({required bool isUpdate}) async {
-  EditPageController editPageController = Get.find();
-  HomePageController homePageController = Get.find();
-  bool? isSuccess;
-
-  if (editPageController.nameController.text.trim().isNotEmpty &&
-      editPageController.numberControllers.isNotEmpty) {
-    if (editPageController.numbersAllFilled()) {
-      if (isUpdate) {
-        isSuccess = await updateExistingContact(contact: editPageController.contact!);
-      } else {
-        isSuccess = await saveContact();
-      }
-      if (isSuccess) {
-        routeToPage(page: Routes.homePage, clearPreviousPages: true);
-        Utils.showToast(message: 'عملیات با موفقیت انجام شد', isError: false);
-        try {
-          DetailPageController detailPageController = Get.find();
-          await detailPageController.getContactInfo();
-        } catch (e) {
-          Utils.logEvent(message: 'DetailPageController Not Put', logType: LogType.error);
-        }
-        await homePageController.loadData();
-      }
-    } else {
-      Utils.showToast(message: "شماره خالی قابل ذخیره سازی نیست", isError: true);
-    }
-  } else {
-    Utils.showToast(message: "فیلد نام و شماره‌ها نباید خالی باشد", isError: true);
-  }
 }

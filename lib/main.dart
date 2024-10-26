@@ -2,22 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:special_phone_book/routes/routes.dart';
-import 'package:special_phone_book/storage/models/models.dart';
+import 'package:special_phone_book/storage/functions/functions.dart';
 import 'package:special_phone_book/utils/utils.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    await Hive.initFlutter();
-    Hive.registerAdapter(ContactAdapter());
+    await Storage.openDB();
   } catch (e) {
-    Utils.logEvent(message: e.toString(), logType: LogType.error);
+    Utils.logEvent(message: 'ensureInitialized Failed! -> $e', logType: LogType.error);
   }
-  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.black,
-    statusBarIconBrightness: Brightness.light,
+    statusBarColor:  Color(0xffefedd4),
+    statusBarIconBrightness: Brightness.dark,
     systemNavigationBarColor: Colors.black,
     systemNavigationBarIconBrightness: Brightness.light,
   ));
@@ -36,19 +33,20 @@ class MyApp extends StatelessWidget {
       title: 'Super Phone Book',
       getPages: Pages.pages,
       initialRoute: Routes.homePage,
-      theme: ThemeData.dark(useMaterial3: true).copyWith(
+      color: const Color(0xffefedd4),
+      theme: ThemeData(
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         splashFactory: NoSplash.splashFactory,
+        scaffoldBackgroundColor: const Color(0xffefedd4),
+        iconTheme: const IconThemeData(color: Color(0xff78c7bc)),
+        fontFamily: "Vazir"
       ),
       builder: (context, child) {
         final mediaQueryData = MediaQuery.of(context);
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: MediaQuery(
-            data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1)),
-            child: child!,
-          ),
+        return MediaQuery(
+          data: mediaQueryData.copyWith(textScaler: const TextScaler.linear(1)),
+          child: child!,
         );
       },
     );

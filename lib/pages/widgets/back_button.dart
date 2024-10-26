@@ -13,6 +13,7 @@ class CustomBackButton extends StatelessWidget {
         textDirection: TextDirection.ltr,
         child: Icon(
           CupertinoIcons.back,
+          color: Color(0xff78c7bc),
           size: 30,
         ),
       ),

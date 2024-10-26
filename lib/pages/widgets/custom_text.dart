@@ -9,7 +9,9 @@ class CustomText extends StatelessWidget {
     this.color,
     this.fontSize,
     this.fontWeight,
-    this.textAlign, this.maxLine,
+    this.textAlign,
+    this.maxLine,
+    this.textDirection = TextDirection.rtl,
   });
 
   final String text;
@@ -18,22 +20,26 @@ class CustomText extends StatelessWidget {
   final FontWeight? fontWeight;
   final TextAlign? textAlign;
   final int? maxLine;
+  final TextDirection? textDirection;
 
   @override
   Widget build(BuildContext context) {
-    return AutoSizeText(
-      text.toString().tr,
-      maxFontSize: 25,
-      minFontSize: 12,
-      textScaleFactor: 1,
-      maxLines: maxLine,
-      textAlign: textAlign,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(
-        fontFamily: "Vazir",
-        color: color,
-        fontSize: fontSize,
-        fontWeight: fontWeight,
+    return Directionality(
+      textDirection: textDirection!,
+      child: AutoSizeText(
+        text.toString().tr,
+        maxFontSize: 25,
+        minFontSize: 12,
+        textScaleFactor: 1,
+        maxLines: maxLine,
+        textAlign: textAlign,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontFamily: "Vazir",
+          color: color,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+        ),
       ),
     );
   }

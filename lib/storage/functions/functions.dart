@@ -1,210 +1,214 @@
-// ignore_for_file: avoid_function_literals_in_foreach_calls
-
-import 'package:hive/hive.dart';
-import 'package:special_phone_book/storage/models/models.dart';
+import 'dart:io';
+import 'package:path/path.dart';
 import 'package:special_phone_book/utils/utils.dart';
-
-enum ExistMode { name, number, none }
+import 'package:sqflite/sqflite.dart';
 
 class Storage {
-  // -----------------------------ID Generator--------------------------------
-  static Future<Box> openIdGeneratorBox() async {
-    Box box = await Hive.openBox('id_generator');
-    return box;
-  }
+  //----------------------------------------Scripts----------------------------------------
+  static List initScripts = [
+    '''
+CREATE TABLE IF NOT EXISTS Contacts(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      picture_path TEXT,
+      is_me INTEGER)
+    ''',
+    '''
+CREATE TABLE IF NOT EXISTS Numbers(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  	  contact_id INTEGER NOT NULL,
+      country_code TEXT NOT NULL,
+      country_symbol TEXT NOT NULL,
+  	  number TEXT NOT NULL UNIQUE,
+      FOREIGN KEY (contact_id) REFERENCES Contacts(id))
+    ''',
+    '''
+CREATE TABLE IF NOT EXISTS Emails(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  	  contact_id INTEGER NOT NULL,
+  	  email TEXT,
+      FOREIGN KEY (contact_id) REFERENCES Contacts(id))
+    ''',
+    '''
+ CREATE TABLE IF NOT EXISTS Addresses(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+  	  contact_id INTEGER NOT NULL,
+  	  latitude REAL,
+      longitude REAL,
+      FOREIGN KEY (contact_id) REFERENCES Contacts(id));   
+    '''
+  ];
+  static List migrationScripts = [];
 
-  static Future<void> closeIdGeneratorBox() async {
-    Box box = await openIdGeneratorBox();
-    await box.close();
-  }
+  //----------------------------------------Create-----------------------------------------
+  static Future<Database> openDB() async {
+    var databasesPath = await getDatabasesPath();
+    var path = join(databasesPath, 'contacts_special.db');
 
-  static Future<int> generateId() async {
-    Box box = await openIdGeneratorBox();
-    int id = box.get('last_id') ?? 0;
-    id = id + 1;
-    await box.put('last_id', id);
-    await closeIdGeneratorBox();
-    return id;
-  }
-
-// -----------------------------MySelf---------------------------------
-  static Future<bool> saveMyInfo({required Contact contact}) async {
     try {
-      Box box = await Hive.openBox('my_self');
-      await box.put('me', contact);
-      await box.close();
-      return true;
+      await Directory(databasesPath).create(recursive: true);
     } catch (e) {
-      Utils.logEvent(message: e.toString(), logType: LogType.error);
-      return false;
+      Utils.logEvent(message: 'Create Database Failed! -> $e ', logType: LogType.error);
     }
-  }
 
-  static Future<Contact?> getMyInfo() async {
-    Box box = await Hive.openBox('my_self');
-    if (box.toMap()['me'] == null) {
-      await box.put('me', Contact());
-    }
-    Contact contact = await box.get('me');
-    await box.close();
-    return contact;
-  }
-
-// -----------------------------Contacts---------------------------------
-  static Future<Box> openContactsBox() async {
-    Box box = await Hive.openBox('Contacts');
-    return box;
-  }
-
-  static Future<void> closeContactBox() async {
-    Box box = await openContactsBox();
-    await box.close();
-  }
-
-  static Future<List> sortContacts({required List data}) async {
-    data.sort((a, b) => a.name!.compareTo(b.name!));
-    return data;
-  }
-
-  static Future<Map> numbersAreExist(
-      {required Contact previousContact, required Contact newContact}) async {
-    for (String newNumber in newContact.numbers ?? []) {
-      for (String number in previousContact.numbers!) {
-        if (newNumber == number) {
-          return {'status': true, 'number': number};
+    Database db = await openDatabase(
+      path,
+      version: migrationScripts.length + 1,
+      onCreate: (db, version) async {
+        for (var element in initScripts) {
+          await db.execute(element);
         }
-      }
-    }
-    return {'status': false};
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        for (var i = oldVersion - 1; i < newVersion - 1; i++) {
+          try {
+            await db.execute(migrationScripts[i]);
+          } catch (e) {
+            Utils.logEvent(message: 'Migration Failed! -> $e ', logType: LogType.error);
+          }
+        }
+      },
+    );
+    return db;
   }
+  //----------------------------------------Read-------------------------------------------
 
-  static Future<Map> checkContact({required Contact contact}) async {
-    List allContacts = await getAllContacts(closeBox: false) ?? [];
-    for (Contact cnt in allContacts) {
-      if (cnt.name == contact.name) {
-        return {'status': ExistMode.name, 'conflict': cnt.name};
-      }
-      Map status = await numbersAreExist(newContact: contact, previousContact: cnt);
-      if (status.containsKey('number')) {
-        return {'status': ExistMode.number, 'conflict': status['number']};
-      }
-    }
-    return {'status': ExistMode.none};
-  }
-
-//----------------------------------Create--------------------------------
-  static Future<bool> addContact({required Contact contact, int? id}) async {
+  static Future<List?> getAllContacts() async {
+    Database database = await openDB();
     try {
-      Box box = await openContactsBox();
-      if (id == null) {
-        contact.id = await generateId();
-      }
-      Map contactStatus = await checkContact(contact: contact);
-      switch (contactStatus['status']) {
-        case ExistMode.number:
-          Utils.showToast(
-              message: 'شماره ${contactStatus['conflict']} قبلا برای مخاطب دیگری ذخیره شده است',
-              isError: true);
-          return false;
-
-        case ExistMode.name:
-          Utils.showToast(message: 'مخاطبی با این نام قبلا ذخیره شده است', isError: true);
-          return false;
-
-        case ExistMode.none:
-          await box.put(contact.id, contact);
-          await closeContactBox();
-          return true;
-
-        default:
-          return false;
-      }
-    } catch (e) {
-      Utils.logEvent(message: e.toString(), logType: LogType.error);
-      return false;
-    }
-  }
-
-  //----------------------------------Read----------------------------------
-  static Future<List?> getAllContacts({bool? sort = true, bool? closeBox = true}) async {
-    try {
-      Box box = await openContactsBox();
-      List data = box.values.toList();
-      if (sort!) {
-        data = await sortContacts(data: data);
-      }
-      if (closeBox!) {
-        await closeContactBox();
-      }
+      List<Map> data = await database.query(
+        'Contacts',
+        orderBy: 'name',
+        where: 'is_me != ?',
+        whereArgs: [1],
+      );
+      await database.close();
       return data;
     } catch (e) {
-      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      Utils.logEvent(message: 'Load All Contatcts Failed! -> $e ', logType: LogType.error);
+      await database.close();
       return null;
     }
   }
 
-  static Future<Contact?> getContact({required int contactId}) async {
+  static Future<Map?> getMyInfo() async {
+    Database database = await openDB();
     try {
-      Box box = await openContactsBox();
-      Contact contact = box.get(contactId);
-      await closeContactBox();
-      return contact;
+      List<Map> data = await database.query(
+        'Contacts',
+        orderBy: 'name',
+        where: 'is_me = ?',
+        whereArgs: [1],
+      );
+      await database.close();
+      return data.isNotEmpty ? data[0] : {};
     } catch (e) {
-      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      Utils.logEvent(message: 'Load My Info Failed! -> $e ', logType: LogType.error);
+      await database.close();
+      return null;
+    }
+  }
+
+  static Future<Map?> getContactInfo({required int contactId}) async {
+    Database database = await openDB();
+    Batch batch = database.batch();
+    batch.query('Contacts', where: 'id = ?', whereArgs: [contactId]);
+    batch.query('Numbers', where: 'contact_id = ?', whereArgs: [contactId]);
+    batch.query('Emails', where: 'contact_id = ?', whereArgs: [contactId]);
+    batch.query('Addresses', where: 'contact_id = ?', whereArgs: [contactId]);
+    try {
+      List data = await batch.commit();
+      await database.close();
+      return {'base': data[0][0], 'numbers': data[1], 'emails': data[2], 'addresses': data[3]};
+    } catch (e) {
+      Utils.logEvent(message: 'Load Contact Failed! -> $e ', logType: LogType.error);
+      await database.close();
       return null;
     }
   }
 
   static Future<List?> searchContact({required String search}) async {
+    Database database = await openDB();
     try {
-      Box box = await openContactsBox();
-      List data = box.values
-          .where((contact) =>
-              contact.name.contains(search) ||
-              contact.numbers.toList().any((String number) => number.contains(search)))
-          .toList();
-      data = await sortContacts(data: data);
-      await closeContactBox();
+      List<Map> data = await database.query(
+        'Contacts',
+        orderBy: 'name',
+        where: 'is_me = ? AND name LIKE ?',
+        whereArgs: [0, "%$search%"],
+      );
+      await database.close();
       return data;
     } catch (e) {
-      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      Utils.logEvent(message: 'Load All Contatcts Failed! -> $e ', logType: LogType.error);
+      await database.close();
       return null;
     }
   }
 
-  //--------------------------------Update----------------------------------
-  static Future<bool> updateContact({required Contact contact}) async {
-    try {
-      Box box = await openContactsBox();
-      await box.put(contact.id, contact);
-      await closeContactBox();
-      return true;
-    } catch (e) {
-      Utils.logEvent(message: e.toString(), logType: LogType.error);
-      return false;
+  //----------------------------------------Add--------------------------------------------
+  /// contactData = {
+  /// 'base': {'name':str , 'picture_path':str, 'is_me':int<0,1>},
+  ///
+  /// 'numbers': list<{'country_code': str, 'number': str, 'country_symbol':str}>,
+  ///
+  /// 'emails': list<String>,
+  ///
+  /// 'addresses' : list<{'latitude':..., 'longitude':...}>,
+  /// }
+  static Future<void> addContact({required Map contactData}) async {
+    Database database = await openDB();
+    Batch batch = database.batch();
+    int createdId = await database.insert('Contacts', contactData['base']);
+
+    for (var number in contactData['numbers']) {
+      batch.insert('Numbers', {
+        'contact_id': createdId,
+        'country_code': number['country_code'],
+        'country_symbol': number['country_symbol'],
+        'number': number['number']
+      });
     }
+
+    for (var email in contactData['emails']) {
+      batch.insert('Emails', {
+        'contact_id': createdId,
+        'email': email,
+      });
+    }
+
+    for (var address in contactData['addresses']) {
+      batch.insert('Addresses', {
+        'contact_id': createdId,
+        'latitude': address['latitude'],
+        'longitude': address['longitude'],
+      });
+    }
+    await batch.commit();
+    await database.close();
   }
 
-  //----------------------------------Delete--------------------------------
+  //----------------------------------------Update-----------------------------------------
+  static Future<void> updateContact({required Map contactData}) async {
+  }
+
+  //----------------------------------------Delete-----------------------------------------
+
   static Future<bool> deleteContact({required int contactId}) async {
+    Database database = await openDB();
+    Batch batch = database.batch();
+    batch.delete('Contacts', where: 'id = ?', whereArgs: [contactId]);
+    batch.delete('Numbers', where: 'contact_id = ?', whereArgs: [contactId]);
+    batch.delete('Emails', where: 'contact_id = ?', whereArgs: [contactId]);
+    batch.delete('Addresses', where: 'contact_id = ?', whereArgs: [contactId]);
     try {
-      Box box = await openContactsBox();
-      await box.delete(contactId);
-      await closeContactBox();
+      await batch.commit(continueOnError: false);
+      await database.close();
       return true;
     } catch (e) {
-      Utils.logEvent(message: e.toString(), logType: LogType.error);
+      Utils.logEvent(message: 'Load Contact Failed! -> $e ', logType: LogType.error);
+      await database.close();
       return false;
     }
   }
-
-  static Future<Map> getDataAsMap() async {
-    Map result = {};
-    Box box = await openContactsBox();
-    Map data = box.toMap();
-    for (var key in data.keys.toList()) {
-      result[key.toString()] = data[key].toJson();
-    }
-    return result;
-  }
+  //----------------------------------------Aux Functions----------------------------------
 }

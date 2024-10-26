@@ -1,16 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:another_flushbar/flushbar.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:special_phone_book/pages/widgets/custom_text.dart';
-import 'package:special_phone_book/storage/functions/functions.dart';
-import 'package:special_phone_book/storage/models/models.dart';
 
 enum LogType { trace, debug, info, warning, error }
 
@@ -42,6 +36,7 @@ class Utils {
   }) async {
     await Flushbar(
       isDismissible: true,
+      // backgroundColor: const Color(0xffefedd4),
       messageText: Directionality(
           textDirection: TextDirection.rtl,
           child: CustomText(
@@ -77,44 +72,10 @@ class Utils {
   }
 
   static Future<void> createBackupFile() async {
-    Directory copyTo = Directory("storage/emulated/0/Super Phone Book");
-    await getPermission(copyTo: copyTo);
-
-    File backupFile = File('${copyTo.path}/backup_contacts.json');
-
-    try {
-      Map data = await Storage.getDataAsMap();
-      backupFile = await backupFile.writeAsString(jsonEncode(data));
-      showToast(message: 'فایل پشتیبان در پوشه ${copyTo.path} قرار داده شد', isError: false);
-    } catch (e) {
-      logEvent(message: e.toString(), logType: LogType.error);
-      showToast(message: 'پشتیبان گیری ناموفق بود', isError: true);
-    }
+    
   }
 
   static Future<void> restoreBackup() async {
-    // showToast(message: 'در حال بازگردانی مخاطبین...', isError: false);
-    FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(type: FileType.any);
-    if (pickedFile != null) {
-      try {
-        File files = File(pickedFile.files.single.path.toString());
-        Box box = await Storage.openContactsBox();
-        await box.clear();
-        Map<String, dynamic> data = jsonDecode(await files.readAsString());
-        for (var key in data.keys.toList()) {
-          Contact contact = Contact(
-            id: data[key]['id'],
-            name: data[key]['name'],
-            numbers: List<String>.from(data[key]['numbers']),
-            picturePath: data[key]['picturePath'],
-          );
-          await Storage.addContact(contact: contact, id: int.parse(key));
-        }
-        showToast(message: 'بازگردانی با موفقیت انجام شد', isError: false);
-      } catch (e) {
-        showToast(message: 'خطا در بازگردانی اطلاعات', isError: true);
-        logEvent(message: e.toString(), logType: LogType.error);
-      }
-    }
+    
   }
 }

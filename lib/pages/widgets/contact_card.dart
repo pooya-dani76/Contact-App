@@ -36,6 +36,7 @@ class ContactCard extends StatelessWidget {
             CustomText(
               text: name,
               fontWeight: FontWeight.bold,
+              color: Colors.grey,
             )
           ],
         ),

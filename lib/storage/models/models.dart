@@ -1,25 +1,15 @@
-import 'package:hive/hive.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 
-part 'models.g.dart';
-
-@HiveType(typeId: 0)
 class Contact {
-  @HiveField(0)
-  int? id;
-
-  @HiveField(1)
-  String? name;
-
-  @HiveField(2)
-  List<String>? numbers;
-
-  @HiveField(3)
+  int id;
+  String name;
+  List<PhoneNumber> numbers;
   String? picturePath;
 
   Contact({
-    this.id,
-    this.name,
-    this.numbers,
+    required this.id,
+    required this.name,
+    required this.numbers,
     this.picturePath,
   });
 
@@ -41,54 +31,21 @@ class Contact {
       'numbers': numbers,
     }.toString();
   }
-
-  bool isNumbersEqual(Contact other) {
-    int numLength = numbers == null ? 0 : numbers!.length;
-    int otherNumLength = other.numbers == null ? 0 : other.numbers!.length;
-    if (numLength != otherNumLength) {
-      return false;
-    } else {
-      for (int i = 0; i <= numLength; i++) {
-        if (numbers![i] != other.numbers![i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (other is! Contact) {
-      return false;
-    }
-    return name == other.name &&
-        id == other.id &&
-        picturePath == other.picturePath &&
-        isNumbersEqual(other);
-  }
-
-  @override
-  int get hashCode => Object.hash(id, name, picturePath, numbers);
 }
 
-Map a = {
-  "1": {
-    "id": 1,
-    "name": "مهدی کونی",
-    "pic_path": "/data/user/0/com.example.special_phone_book/cache/image_cropper_1728954917818.jpg",
-    "numbers": ["09104981584"]
-  },
-  "2": {
-    "id": 2,
-    "name": "بابا۲",
-    "pic_path": "/data/user/0/com.example.special_phone_book/cache/image_cropper_1728954955456.jpg",
-    "numbers": ["09125085229", "09335084229"]
-  },
-  "3": {
-    "id": 3,
-    "name": "ابولفضل چاقال",
-    "pic_path": null,
-    "numbers": ["1545548495"]
-  },
-};
+class PhoneNumber {
+  String countryCode;
+  String number;
+
+  PhoneNumber({
+    required this.countryCode,
+    required this.number,
+  });
+
+  Map toJson() {
+    return {
+      'country_code': countryCode,
+      'number': number,
+    };
+  }
+}
