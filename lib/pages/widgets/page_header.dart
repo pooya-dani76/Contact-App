@@ -66,7 +66,7 @@ class PageHeader extends StatelessWidget {
             const SizedBox(height: 10),
             Center(
               child: CustomText(
-                text: name ?? 'بدون نام',
+                text: name!,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
                 fontSize: 20,

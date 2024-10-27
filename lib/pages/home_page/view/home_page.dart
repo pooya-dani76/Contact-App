@@ -19,15 +19,17 @@ class HomePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               children: [
-                PageHeader(
-                  name: homePageController.meBase != null ? homePageController.meBase!['name'] : null,
-                  picturePath: homePageController.meBase != null ? homePageController.meBase!['picture_path'] : null,
+                if(homePageController.meBase != null)...{
+                  PageHeader(
+                  name: homePageController.meBase!['name'],
+                  picturePath: homePageController.meBase!['picture_path'] ,
                   onLeftButtonTap: onAddContactTap,
                   onRightButtonTap: onSearchButtonTap,
                   rightIcon: homePageController.searchMode ? Icons.close : Icons.search,
                   leftIcon: Icons.add,
                   onAvatarTap: onMyPicTap,
                 ),
+                },
                 if (homePageController.searchMode) ...{
                   const SizedBox(height: 30),
                   CustomTextField(
@@ -62,7 +64,7 @@ class HomePage extends StatelessWidget {
                             )
                           : const Center(
                               child: CustomText(
-                                text: 'مخاطبی ذخیره نشده است',
+                                text: 'مخاطبی وجود ندارد',
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey,
                               ),

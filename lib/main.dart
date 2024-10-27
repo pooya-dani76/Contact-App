@@ -9,6 +9,7 @@ Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
     await Storage.openDB();
+    await Storage.createMe();
   } catch (e) {
     Utils.logEvent(message: 'ensureInitialized Failed! -> $e', logType: LogType.error);
   }

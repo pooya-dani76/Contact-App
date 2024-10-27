@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:special_phone_book/pages/detail_page/controller/detail_page_controller.dart';
 import 'package:special_phone_book/pages/edit_page/controller/edit_page_controller.dart';
 import 'package:special_phone_book/pages/edit_page/view/email_getter.dart';
 import 'package:special_phone_book/pages/edit_page/view/number_getter.dart';
@@ -20,7 +21,7 @@ class EditPage extends StatefulWidget {
 class _EditPageState extends State<EditPage> {
   @override
   void initState() {
-    Get.put(EditPageController(contactId: Get.arguments != null ? Get.arguments['contact_id'] : null));
+    Get.put(EditPageController(info: Get.arguments));
     super.initState();
   }
 
@@ -50,8 +51,10 @@ class _EditPageState extends State<EditPage> {
                     showName: false,
                     picturePath: editPageController.picPath,
                     leftIcon: CupertinoIcons.check_mark,
-                    rightIcon: Get.arguments != null ? Icons.delete_outline_rounded : null,
-                    onRightButtonTap: Get.arguments != null ? deleteContact : null,
+                    rightIcon: (Get.arguments != null && !Get.arguments.containsKey('me'))
+                        ? Icons.delete_outline_rounded
+                        : null,
+                    onRightButtonTap: (Get.arguments != null && !Get.arguments.containsKey('me')) ? deleteContact : null,
                     onLeftButtonTap: () => onSubmitTap(isUpdate: Get.arguments != null),
                     onAvatarTap: editPageController.setPicture,
                   ),

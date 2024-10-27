@@ -58,7 +58,7 @@ class NumberGetter extends StatelessWidget {
             child: DottedBorder(
                 radius: const Radius.circular(15),
                 borderType: BorderType.RRect,
-                color: Colors.grey,
+                color: const Color(0xff78c7bc),
                 child: const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Row(
@@ -66,13 +66,13 @@ class NumberGetter extends StatelessWidget {
                     children: [
                       Icon(
                         CupertinoIcons.add,
-                        color: Colors.grey,
+                        color: Color(0xff78c7bc),
                         size: 16,
                       ),
                       SizedBox(width: 8),
                       CustomText(
                         text: 'اضافه کردن شماره',
-                        color: Colors.grey,
+                        color: Color(0xff78c7bc),
                       ),
                     ],
                   ),

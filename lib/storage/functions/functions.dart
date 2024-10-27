@@ -79,8 +79,8 @@ CREATE TABLE IF NOT EXISTS Emails(
       List<Map> data = await database.query(
         'Contacts',
         orderBy: 'name',
-        where: 'is_me != ?',
-        whereArgs: [1],
+        where: 'is_me = ?',
+        whereArgs: [0],
       );
       await database.close();
       return data;
@@ -106,6 +106,24 @@ CREATE TABLE IF NOT EXISTS Emails(
       Utils.logEvent(message: 'Load My Info Failed! -> $e ', logType: LogType.error);
       await database.close();
       return null;
+    }
+  }
+
+  static Future<void> createMe() async {
+    Database database = await openDB();
+    List<Map> data = await database.query(
+        'Contacts',
+        where: 'is_me = ?',
+        whereArgs: [1],
+      );
+    try {
+      if (data.isEmpty) {
+        await database.insert('Contacts', {'name':'' , 'picture_path':'', 'is_me':1});
+      }
+      await database.close();
+    } catch (e) {
+      Utils.logEvent(message: 'Create Me Failed! -> $e ', logType: LogType.error);
+      await database.close();
     }
   }
 
@@ -155,7 +173,7 @@ CREATE TABLE IF NOT EXISTS Emails(
   ///
   /// 'addresses' : list<{'latitude':..., 'longitude':...}>,
   /// }
-  static Future<void> addContact({required Map contactData}) async {
+  static Future<bool> addContact({required Map contactData}) async {
     Database database = await openDB();
     Batch batch = database.batch();
     int createdId = await database.insert('Contacts', contactData['base']);
@@ -183,12 +201,60 @@ CREATE TABLE IF NOT EXISTS Emails(
         'longitude': address['longitude'],
       });
     }
-    await batch.commit();
-    await database.close();
+    try {
+      await batch.commit();
+      await database.close();
+      return true;
+    } catch (e) {
+      Utils.logEvent(message: 'Add Contact Failed! -> $e ', logType: LogType.error);
+      await database.close();
+      return false;
+    }
   }
 
   //----------------------------------------Update-----------------------------------------
-  static Future<void> updateContact({required Map contactData}) async {
+  static Future<bool> updateContact({required Map contactData}) async {
+    Database database = await openDB();
+    Batch batch = database.batch();
+    batch.update('Contacts', contactData['base'],
+        where: 'id = ?', whereArgs: [contactData['base']['id']]);
+    batch.delete('Numbers', where: 'contact_id = ?', whereArgs: [contactData['base']['id']]);
+    batch.delete('Emails', where: 'contact_id = ?', whereArgs: [contactData['base']['id']]);
+    batch.delete('Addresses', where: 'contact_id = ?', whereArgs: [contactData['base']['id']]);
+
+    for (var number in contactData['numbers']) {
+      batch.insert('Numbers', {
+        'contact_id': contactData['base']['id'],
+        'country_code': number['country_code'],
+        'country_symbol': number['country_symbol'],
+        'number': number['number']
+      });
+    }
+
+    for (var email in contactData['emails']) {
+      batch.insert('Emails', {
+        'contact_id': contactData['base']['id'],
+        'email': email,
+      });
+    }
+
+    for (var address in contactData['addresses']) {
+      batch.insert('Addresses', {
+        'contact_id': contactData['base']['id'],
+        'latitude': address['latitude'],
+        'longitude': address['longitude'],
+      });
+    }
+
+    try {
+      await batch.commit();
+      await database.close();
+      return true;
+    } catch (e) {
+      Utils.logEvent(message: 'Update Contact Failed! -> $e ', logType: LogType.error);
+      await database.close();
+      return false;
+    }
   }
 
   //----------------------------------------Delete-----------------------------------------

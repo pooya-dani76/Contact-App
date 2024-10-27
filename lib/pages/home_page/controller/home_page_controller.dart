@@ -66,7 +66,10 @@ void onSearchButtonTap() {
 }
 
 void onMyPicTap() {
-  routeToPage(page: Routes.editPage, arguments: {'me': true});
+  HomePageController homePageController = Get.find();
+  routeToPage(
+      page: Routes.editPage,
+      arguments: {'contact_id': homePageController.meBase!['id'], 'me': true});
 }
 
 Future<String> getAppVersion() async {
