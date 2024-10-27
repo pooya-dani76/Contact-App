@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl_phone_field/countries.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:special_phone_book/pages/edit_page/controller/edit_page_controller.dart';
 
+// ignore: must_be_immutable
 class CustomPhoneInputField extends StatelessWidget {
-  const CustomPhoneInputField(
-      {super.key, required this.controller, this.onCountryChanged, required this.initCountryCode});
+  CustomPhoneInputField(
+      {super.key,
+      required this.controller,
+      this.onCountryChanged,
+      required this.initCountryCode,
+      required this.controllerIndex});
 
   final TextEditingController controller;
   final void Function(Country)? onCountryChanged;
   final String initCountryCode;
+  final int controllerIndex;
+
+  EditPageController editPageController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +29,13 @@ class CustomPhoneInputField extends StatelessWidget {
       initialCountryCode: initCountryCode,
       invalidNumberMessage: 'شماره وارد شده معتبر نیست',
       textAlignVertical: TextAlignVertical.center,
+      onChanged: (newValue) {
+        try {
+          editPageController.numberControllers[controllerIndex]['is_valid'] =  newValue.isValidNumber();
+        } catch (e) {
+          editPageController.numberControllers[controllerIndex]['is_valid'] = false;
+        }
+      },
       pickerDialogStyle: PickerDialogStyle(backgroundColor: const Color(0xffefedd4)),
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(

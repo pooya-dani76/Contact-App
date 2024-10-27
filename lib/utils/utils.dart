@@ -55,6 +55,12 @@ class Utils {
     ).show(Get.context!);
   }
 
+  static bool isValidEmail({required String email}) {
+    return RegExp(
+            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+        .hasMatch(email);
+  }
+
   static Future<void> getPermission({required Directory copyTo}) async {
     if (await copyTo.exists()) {
       var status = await Permission.manageExternalStorage.status;
@@ -71,11 +77,7 @@ class Utils {
     }
   }
 
-  static Future<void> createBackupFile() async {
-    
-  }
+  static Future<void> createBackupFile() async {}
 
-  static Future<void> restoreBackup() async {
-    
-  }
+  static Future<void> restoreBackup() async {}
 }

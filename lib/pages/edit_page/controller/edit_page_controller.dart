@@ -17,7 +17,12 @@ class EditPageController extends GetxController {
   String? picPath;
   TextEditingController nameController = TextEditingController();
   List numberControllers = [
-    {'country_code': '98', 'country_symbol': 'IR', 'number': TextEditingController()}
+    {
+      'country_code': '98',
+      'country_symbol': 'IR',
+      'number': TextEditingController(),
+      'is_valid': false
+    }
   ];
   List emailControllers = [];
   List<Map> addresses = [];
@@ -31,8 +36,12 @@ class EditPageController extends GetxController {
   }
 
   void addNumber() {
-    numberControllers
-        .add({'country_code': '98', 'country_symbol': 'IR', 'number': TextEditingController()});
+    numberControllers.add({
+      'country_code': '98',
+      'country_symbol': 'IR',
+      'number': TextEditingController(),
+      'is_valid': false
+    });
     update();
   }
 
@@ -128,6 +137,36 @@ class EditPageController extends GetxController {
   }
 }
 
+Future<bool> numbersAreValid() async {
+  EditPageController editPageController = Get.find();
+  if (editPageController.numberControllers[0]['number'].text.isEmpty) {
+    return false;
+  }
+  if (editPageController.numberControllers
+      .map((number) => number['is_valid'])
+      .toList()
+      .any((element) => element == false)) {
+    return false;
+  }
+  return true;
+}
+
+Future<bool> emailsAreValid() async {
+  EditPageController editPageController = Get.find();
+  if (editPageController.emailControllers
+      .map((email) => email.text)
+      .toList()
+      .any((element) => !Utils.isValidEmail(email: element))) {
+    return false;
+  }
+  return true;
+}
+
+Future<bool> nameIsValid() async {
+  EditPageController editPageController = Get.find();
+  return editPageController.nameController.text.trim().isNotEmpty;
+}
+
 Future<bool> saveContact() async {
   EditPageController editPageController = Get.find();
   bool response = await Storage.addContact(contactData: {
@@ -171,34 +210,45 @@ Future<bool> updateExistingContact() async {
   return response;
 }
 
-saveMyInfo() {}
-
 Future<void> onSubmitTap({required bool isUpdate}) async {
   HomePageController homePageController = Get.find();
   bool isSuccess;
-  if (isUpdate) {
-    isSuccess = await updateExistingContact();
-    if (isSuccess) {
-      try {
-        DetailPageController detailPageController = Get.find();
-        detailPageController.getContactInfo();
-      } catch (e) {
-        Utils.logEvent(message: 'DetailPageController Not Put!', logType: LogType.warning);
+
+  if (await nameIsValid()) {
+    if (await numbersAreValid()) {
+      if (await emailsAreValid()) {
+        if (isUpdate) {
+          isSuccess = await updateExistingContact();
+          if (isSuccess) {
+            try {
+              DetailPageController detailPageController = Get.find();
+              detailPageController.getContactInfo();
+            } catch (e) {
+              Utils.logEvent(message: 'DetailPageController Not Put!', logType: LogType.warning);
+            }
+            homePageController.loadData();
+            Get.back();
+            Utils.showToast(message: 'مخاطب با موفقیت ویرایش شد.', isError: false);
+          } else {
+            Utils.showToast(message: 'خطا در ویرایش مخاطب', isError: true);
+          }
+        } else {
+          isSuccess = await saveContact();
+          if (isSuccess) {
+            homePageController.loadData();
+            routeToPage(page: Routes.homePage, clearPreviousPages: true);
+            Utils.showToast(message: 'مخاطب با موفقیت ذخیره شد.', isError: false);
+          } else {
+            Utils.showToast(message: 'یکی از شماره های ثبت شده متعلق به مخاطب دیگری است', isError: true);
+          }
+        }
+      } else {
+        Utils.showToast(message: 'لطفا ایمیل ها را به شکل صحیح وارد نمایید', isError: true);
       }
-      homePageController.loadData();
-      Get.back();
-      Utils.showToast(message: 'مخاطب با موفقیت ویرایش شد.', isError: false);
     } else {
-      Utils.showToast(message: 'خطا در ویرایش مخاطب', isError: true);
+      Utils.showToast(message: 'لطفا شماره ها را به شکل صحیح وارد نمایید', isError: true);
     }
   } else {
-    isSuccess = await saveContact();
-    if (isSuccess) {
-      homePageController.loadData();
-      routeToPage(page: Routes.homePage, clearPreviousPages: true);
-      Utils.showToast(message: 'مخاطب با موفقیت ذخیره شد.', isError: false);
-    } else {
-      Utils.showToast(message: 'خطا در ذخیره سازی مخاطب', isError: true);
-    }
+    Utils.showToast(message: 'نام نباید خالی باشد', isError: true);
   }
 }

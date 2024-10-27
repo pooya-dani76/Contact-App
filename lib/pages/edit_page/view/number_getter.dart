@@ -41,8 +41,10 @@ class NumberGetter extends StatelessWidget {
                     },
                     Expanded(
                         child: CustomPhoneInputField(
+                      controllerIndex: index,
                       controller: editPageController.numberControllers[index]['number'],
-                      initCountryCode: editPageController.numberControllers[index]['country_symbol'],
+                      initCountryCode: editPageController.numberControllers[index]
+                          ['country_symbol'],
                       onCountryChanged: (country) =>
                           editPageController.onChangeCountry(country: country, index: index),
                     )),
