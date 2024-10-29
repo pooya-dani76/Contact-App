@@ -60,13 +60,24 @@ class EditPageController extends GetxController {
     update();
   }
 
-  void addAddress() {
-    routeToPage(page: Routes.mapPage);
-    // addresses.add({'latitude': 0, 'longitude': 0});
+  void getAddress() {
+    routeToPage(page: Routes.mapPage, arguments: {'edit': true});
+    update();
+  }
+
+  void addAddress({required double latitude, required double longitude}) {
+    addresses.add({'latitude': latitude, 'longitude': longitude});
     update();
   }
 
   void removeAddress({required int index}) {
+    addresses.removeAt(index);
+    update();
+  }
+
+  void editAddress({required int index, required double latitude, required double longitude}) {
+    addresses[index]['latitude'] = latitude;
+    addresses[index]['longitude'] = longitude;
     update();
   }
 
@@ -130,7 +141,9 @@ class EditPageController extends GetxController {
         if (numberControllers.isEmpty) {
           addNumber();
         }
-        //todo: load addresses
+        for (var address in contact!['addresses']) {
+          addAddress(latitude: address['latitude'], longitude: address['longitude']);
+        }
       } else {
         Utils.showToast(message: 'مشکلی در بارگذاری مخاطب وجود دارد', isError: true);
       }

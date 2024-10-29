@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:special_phone_book/pages/map_page/controller/map_page_controller.dart';
 import 'package:special_phone_book/pages/widgets/app_bar.dart';
 import 'package:special_phone_book/pages/widgets/back_button.dart';
 import 'package:special_phone_book/pages/widgets/custom_button.dart';
+import 'package:special_phone_book/pages/widgets/custom_text.dart';
 
 // ignore: must_be_immutable
 class MapPage extends StatefulWidget {
@@ -25,7 +27,7 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
-    Get.put(MapPageController());
+    Get.put(MapPageController(pointData: Get.arguments ?? {'edit': true}));
     super.initState();
   }
 
@@ -36,29 +38,33 @@ class _MapPageState extends State<MapPage> {
         return Material(
           child: Column(
             children: [
-              CustomAppBar(
-                title: 'انتخاب آدرس',
-                trailing: [
-                  const Spacer(),
-                  CustomButton(
-                    onTap: () {},
-                    maxSize: const Size(50,50),
-                    isFlat: true,
-                    child: const Icon(CupertinoIcons.check_mark),
-                  )
-                ],
-                leading: const [CustomBackButton(), Spacer()],
-              ),
+              if (Get.arguments['edit']) ...{
+                const CustomAppBar(
+                  title: 'انتخاب آدرس',
+                  trailing: [
+                    Spacer(),
+                    CustomButton(
+                      onTap: onLocationSubmitTap,
+                      maxSize: Size(40, 40),
+                      isFlat: true,
+                      child: Icon(CupertinoIcons.check_mark),
+                    )
+                  ],
+                  leading: [CustomBackButton(), Spacer()],
+                ),
+              },
               Expanded(
                 child: FlutterMap(
                   mapController: mapPageController.mapController,
                   options: MapOptions(
-                    initialCenter: mapPageController.point, // Center the map over Tehran
-                    initialZoom: 3,
+                    initialCenter: mapPageController.initPoint, // Center the map over Tehran
+                    initialZoom: mapPageController.initZoom,
                     minZoom: 3,
                     maxZoom: 18,
                     onPositionChanged: (camera, hasGesture) {
-                      mapPageController.setSelectedPoint(camera.center);
+                      if (Get.arguments['edit']) {
+                        mapPageController.setSelectedPoint(camera.center);
+                      }
                     },
                     interactionOptions: const InteractionOptions(
                         flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag),
@@ -80,12 +86,38 @@ class _MapPageState extends State<MapPage> {
                               color: Colors.red,
                               size: 40,
                             ),
-                            point: mapPageController.selectedPoint ?? mapPageController.point),
+                            point: mapPageController.selectedPoint),
                       ],
-                    )
+                    ),
+                    if (!Get.arguments['edit']) ...{
+                      Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: CustomButton(
+                            onTap: () => MapsLauncher.launchCoordinates(
+                                mapPageController.selectedPoint.latitude,
+                                mapPageController.selectedPoint.longitude),
+                            maxSize: const Size(200, 40),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.map_rounded),
+                                SizedBox(width: 5),
+                                CustomText(
+                                  text: 'مسیر یابی در گوگل مپ',
+                                  color: Color(0xff78c7bc),
+                                ),
+                              ],
+                            )),
+                      ),
+                    ),
+                    }
+                    
                   ],
                 ),
               ),
+              
             ],
           ),
         );

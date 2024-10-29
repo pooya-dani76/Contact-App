@@ -18,9 +18,19 @@ class EmailsShow extends StatelessWidget {
           fontSize: 16,
         ),
         const SizedBox(height: 20),
-        Column(
+        if(emails.isNotEmpty)...{
+          Column(
           children: emails.map<Widget>((email) => EmailTile(email: email['email'])).toList(),
         ),
+        }
+        else...{
+          const Center(
+            child: CustomText(
+              text: 'ایمیلی ثبت نشده است',
+              color: Colors.grey,
+            ),)
+        }
+        
       ],
     );
   }
