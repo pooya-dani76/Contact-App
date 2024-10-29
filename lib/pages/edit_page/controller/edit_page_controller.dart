@@ -61,6 +61,8 @@ class EditPageController extends GetxController {
   }
 
   void addAddress() {
+    routeToPage(page: Routes.mapPage);
+    // addresses.add({'latitude': 0, 'longitude': 0});
     update();
   }
 
@@ -239,7 +241,8 @@ Future<void> onSubmitTap({required bool isUpdate}) async {
             routeToPage(page: Routes.homePage, clearPreviousPages: true);
             Utils.showToast(message: 'مخاطب با موفقیت ذخیره شد.', isError: false);
           } else {
-            Utils.showToast(message: 'یکی از شماره های ثبت شده متعلق به مخاطب دیگری است', isError: true);
+            Utils.showToast(
+                message: 'یکی از شماره های ثبت شده متعلق به مخاطب دیگری است', isError: true);
           }
         }
       } else {

@@ -8,18 +8,19 @@ class CustomButton extends StatelessWidget {
     required this.onTap,
     required this.child,
     this.maxSize,
-    this.borderRadius,
+    this.borderRadius, this.isFlat = false,
   });
 
   final VoidCallback onTap;
   final Widget child;
   final Size? maxSize;
   final double? borderRadius;
+  final bool? isFlat;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 10,
+      elevation: isFlat! ? 0 : 10,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius ?? 12)),
       child: InkWell(
         onTap: () => onTap(),

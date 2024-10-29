@@ -6,12 +6,13 @@ class CustomAppBar extends StatelessWidget {
     super.key,
     required this.title,
     this.trailing,
-    this.leading,
+    this.leading, this.backgroundColor = const Color(0xffefedd4),
   });
 
   final String title;
   final List<Widget>? trailing;
   final List<Widget>? leading;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {

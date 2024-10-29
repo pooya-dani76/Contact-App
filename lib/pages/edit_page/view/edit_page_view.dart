@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:special_phone_book/pages/detail_page/controller/detail_page_controller.dart';
 import 'package:special_phone_book/pages/edit_page/controller/edit_page_controller.dart';
+import 'package:special_phone_book/pages/edit_page/view/address_getter.dart';
 import 'package:special_phone_book/pages/edit_page/view/email_getter.dart';
 import 'package:special_phone_book/pages/edit_page/view/number_getter.dart';
 import 'package:special_phone_book/pages/widgets/app_bar.dart';
@@ -67,6 +68,8 @@ class _EditPageState extends State<EditPage> {
                   const NumberGetter(),
                   const SizedBox(height: 30),
                   const EmailGetter(),
+                  const SizedBox(height: 30),
+                  const AddressGetter(),
                   const SizedBox(height: 30),
                 ],
               );

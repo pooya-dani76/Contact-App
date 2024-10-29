@@ -3,6 +3,7 @@ import 'package:special_phone_book/pages/detail_page/view/detail_page_view.dart'
 import 'package:special_phone_book/pages/edit_page/view/edit_page_view.dart';
 import 'package:special_phone_book/pages/home_page/controller/home_page_controller.dart';
 import 'package:special_phone_book/pages/home_page/view/home_page.dart';
+import 'package:special_phone_book/pages/map_page/view/map_page.dart';
 import 'package:special_phone_book/pages/setting_page/controller/setting_page_controller.dart';
 import 'package:special_phone_book/pages/setting_page/view/setting_page_view.dart';
 
@@ -11,6 +12,7 @@ class Routes {
   static String detailPage = '/detail';
   static String editPage = '/edit';
   static String settingPage = '/setting';
+  static String mapPage = '/map';
 }
 
 class Pages {
@@ -29,9 +31,10 @@ class Pages {
       page: () => const EditPage(),
     ),
     GetPage(
-      name: Routes.settingPage,
-      page: () => const SettingPage(),
-      binding: SettingPageBinding()
+        name: Routes.settingPage, page: () => const SettingPage(), binding: SettingPageBinding()),
+    GetPage(
+      name: Routes.mapPage,
+      page: () => const MapPage(),
     ),
   ];
 }
