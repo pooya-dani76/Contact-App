@@ -20,6 +20,7 @@ class HomePage extends StatelessWidget {
             child: Column(
               children: [
                 if(homePageController.meBase != null)...{
+                  const SizedBox(height: 50),
                   PageHeader(
                   name: homePageController.meBase!['name'],
                   picturePath: homePageController.meBase!['picture_path'] ,

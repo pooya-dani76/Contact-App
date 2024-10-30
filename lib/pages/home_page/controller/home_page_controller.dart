@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:special_phone_book/routes/routes.dart';
-import 'package:special_phone_book/storage/functions/functions.dart';
+import 'package:special_phone_book/storage/functions.dart';
 
 class HomePageController extends GetxController {
   List? data;

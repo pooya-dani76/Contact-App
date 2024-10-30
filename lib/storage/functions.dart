@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS Emails(
   //----------------------------------------Create-----------------------------------------
   static Future<Database> openDB() async {
     var databasesPath = await getDatabasesPath();
-    var path = join(databasesPath, 'contacts_special.db');
+    var path = join(databasesPath, 'super_phone_book.db');
 
     try {
       await Directory(databasesPath).create(recursive: true);
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS Emails(
       );
     try {
       if (data.isEmpty) {
-        await database.insert('Contacts', {'name':'' , 'picture_path':'', 'is_me':1});
+        await database.insert('Contacts', {'name':'' , 'picture_path':null, 'is_me':1});
       }
       await database.close();
     } catch (e) {

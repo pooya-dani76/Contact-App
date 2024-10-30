@@ -11,10 +11,11 @@ class PageHeader extends StatelessWidget {
       this.rightIcon,
       this.leftIcon,
       this.onAvatarTap,
-      this.avatarShape = BoxShape.circle,
+      this.avatarShape = BoxShape.rectangle,
       this.name,
       this.picturePath,
-      this.showName = true});
+      this.showName = true,
+      this.onDeleteAvatarTap});
 
   final String? name;
   final String? picturePath;
@@ -23,6 +24,7 @@ class PageHeader extends StatelessWidget {
   final VoidCallback? onLeftButtonTap;
   final IconData? leftIcon;
   final VoidCallback? onAvatarTap;
+  final VoidCallback? onDeleteAvatarTap;
   final BoxShape? avatarShape;
   final bool? showName;
 
@@ -44,12 +46,22 @@ class PageHeader extends StatelessWidget {
                   child: Icon(rightIcon),
                 ),
               } else ...{
-                const SizedBox(height: 70, width: 70)
+                const SizedBox(height: 55, width: 55)
               },
               InkWell(
                 onTap: onAvatarTap,
-                child: Avatar(
-                    image: picturePath ?? '', maxSize: const Size(120, 120), boxShape: avatarShape),
+                child: Badge(
+                  padding: const EdgeInsets.all(2),
+                  alignment: Alignment.topRight,
+                  label: InkWell(
+                      onTap: onDeleteAvatarTap,
+                      child: const Icon(Icons.close_rounded, color: Colors.white, size: 18)),
+                  isLabelVisible: onDeleteAvatarTap != null &&  picturePath != null,
+                  child: Avatar(
+                      image: picturePath ?? '',
+                      maxSize: const Size(120, 120),
+                      boxShape: avatarShape),
+                ),
               ),
               if (onLeftButtonTap != null) ...{
                 CustomButton(
@@ -58,7 +70,7 @@ class PageHeader extends StatelessWidget {
                   child: Icon(leftIcon),
                 ),
               } else ...{
-                const SizedBox(height: 70, width: 70)
+                const SizedBox(height: 55, width: 55)
               }
             ],
           ),

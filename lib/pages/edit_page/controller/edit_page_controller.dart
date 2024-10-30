@@ -8,7 +8,7 @@ import 'package:intl_phone_field/countries.dart';
 import 'package:special_phone_book/pages/detail_page/controller/detail_page_controller.dart';
 import 'package:special_phone_book/pages/home_page/controller/home_page_controller.dart';
 import 'package:special_phone_book/routes/routes.dart';
-import 'package:special_phone_book/storage/functions/functions.dart';
+import 'package:special_phone_book/storage/functions.dart';
 import 'package:special_phone_book/utils/utils.dart';
 
 class EditPageController extends GetxController {
@@ -33,6 +33,11 @@ class EditPageController extends GetxController {
   void onInit() {
     loadContactData();
     super.onInit();
+  }
+
+  void removeAvatar(){
+    picPath = null;
+    update();
   }
 
   void addNumber() {

@@ -10,6 +10,7 @@ import 'package:special_phone_book/pages/widgets/app_bar.dart';
 import 'package:special_phone_book/pages/widgets/back_button.dart';
 import 'package:special_phone_book/pages/widgets/custom_text_field.dart';
 import 'package:special_phone_book/pages/widgets/page_header.dart';
+import 'package:special_phone_book/routes/routes.dart';
 
 // ignore: must_be_immutable
 class EditPage extends StatefulWidget {
@@ -50,12 +51,11 @@ class _EditPageState extends State<EditPage> {
                 children: [
                   PageHeader(
                     showName: false,
+                    onDeleteAvatarTap: editPageController.removeAvatar,
                     picturePath: editPageController.picPath,
                     leftIcon: CupertinoIcons.check_mark,
-                    rightIcon: (Get.arguments != null && !Get.arguments.containsKey('me'))
-                        ? Icons.delete_outline_rounded
-                        : null,
-                    onRightButtonTap: (Get.arguments != null && !Get.arguments.containsKey('me')) ? deleteContact : null,
+                    rightIcon: iconSelector(data: editPageController.info),
+                    onRightButtonTap: oprationSelector(data: editPageController.info),
                     onLeftButtonTap: () => onSubmitTap(isUpdate: Get.arguments != null),
                     onAvatarTap: editPageController.setPicture,
                   ),
@@ -78,5 +78,29 @@ class _EditPageState extends State<EditPage> {
         ),
       ),
     );
+  }
+}
+
+IconData? iconSelector({Map? data}){
+  if (data != null) {
+    if (data.containsKey('me')) {
+      return CupertinoIcons.settings; 
+    } else {
+      return Icons.delete_outline_rounded;
+    }
+  } else {
+    return null;
+  }
+}
+
+VoidCallback? oprationSelector({Map? data}){
+  if (data != null) {
+    if (data.containsKey('me')) {
+      return () => routeToPage(page: Routes.settingPage); 
+    } else {
+      return deleteContact;
+    }
+  } else {
+    return null;
   }
 }

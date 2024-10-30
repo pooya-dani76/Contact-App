@@ -12,34 +12,55 @@ class SettingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<SettingPageController>(
       builder: (settingPageController) {
-        return const Scaffold(
-          body: Column(
-            children: [
-              CustomAppBar(
-                title: 'تنظیمات',
-                trailing: [
-                  Spacer(),
-                  CustomBackButton(),
-                ],
-              ),
-              SizedBox(height: 30),
-              Expanded(
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: Icon(Icons.backup_sharp),
-                      title: CustomText(text: 'پشتیبان گیری'),
-                      onTap: onBackupTap,
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.restore_outlined),
-                      title: CustomText(text: 'بازگردانی'),
-                      onTap: onRestoreTap,
-                    ),
+        return SafeArea(
+          child: Scaffold(
+            body: Column(
+              children: [
+                const CustomAppBar(
+                  title: 'تنظیمات',
+                  leading: [
+                    CustomBackButton(),
+                    Spacer(),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 30),
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: Icon(Icons.backup_sharp),
+                          title: CustomText(text: 'پشتیبان گیری'),
+                          onTap: onBackupTap,
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.restore_outlined),
+                          title: CustomText(text: 'بازگردانی'),
+                          onTap: onRestoreTap,
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.delete_outline_rounded),
+                          title: CustomText(text: 'حذف مشخصات وارد شده شما'),
+                          onTap: removeMySelfInfo,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                FutureBuilder(
+                  future: getAppVersion(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return CustomText(text: snapshot.data!, fontSize: 9);
+                    } else {
+                      return const SizedBox(height: 0, width: 0);
+                    }
+                  },
+                )
+              ],
+            ),
           ),
         );
       },

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:special_phone_book/routes/routes.dart';
-import 'package:special_phone_book/storage/functions/functions.dart';
+import 'package:special_phone_book/storage/functions.dart';
 import 'package:special_phone_book/utils/utils.dart';
 
 Future<void> main() async {
@@ -14,7 +14,7 @@ Future<void> main() async {
     Utils.logEvent(message: 'ensureInitialized Failed! -> $e', logType: LogType.error);
   }
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor:  Color(0xffefedd4),
+    statusBarColor: Color(0xffefedd4),
     statusBarIconBrightness: Brightness.dark,
     systemNavigationBarColor: Colors.black,
     systemNavigationBarIconBrightness: Brightness.light,
@@ -36,13 +36,13 @@ class MyApp extends StatelessWidget {
       initialRoute: Routes.homePage,
       color: const Color(0xffefedd4),
       theme: ThemeData(
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        splashFactory: NoSplash.splashFactory,
-        scaffoldBackgroundColor: const Color(0xffefedd4),
-        iconTheme: const IconThemeData(color: Color(0xff78c7bc)),
-        fontFamily: "Vazir"
-      ),
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          splashFactory: NoSplash.splashFactory,
+          scaffoldBackgroundColor: const Color(0xffefedd4),
+          iconTheme: const IconThemeData(color: Color(0xff78c7bc)),
+          listTileTheme: const ListTileThemeData(iconColor: Color(0xff78c7bc)),
+          fontFamily: "Vazir"),
       builder: (context, child) {
         final mediaQueryData = MediaQuery.of(context);
         return MediaQuery(
