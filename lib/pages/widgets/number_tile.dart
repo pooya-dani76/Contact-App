@@ -49,7 +49,7 @@ void onBubbleMessageTap({required String number}) async {
 
 void onPhoneTap({required String number}) async {
   try {
-    await FlutterPhoneDirectCaller.callNumber(number);
+    await FlutterPhoneDirectCaller.callNumber('+$number');
   } catch (e) {
     Utils.logEvent(message: 'Can Make Call to ${'+$number'}', logType: LogType.error);
   }
